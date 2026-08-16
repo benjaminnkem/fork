@@ -12,3 +12,14 @@ export {
   type RawGovernanceEvent,
   type NormalizedIndexedChange,
 } from "./store.js";
+export {
+  REORG_LOOKBACK_BLOCKS,
+  applyReorgRollback,
+  cursorHashMismatch,
+  impactJobId,
+  indexLagBlocks,
+  rollbackCursorBlock,
+  shouldCancelOpenSimulations,
+  shouldEnqueueImpact,
+  shouldRefreshSimulations,
+} from "./reorg.js";

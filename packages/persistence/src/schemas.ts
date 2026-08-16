@@ -198,14 +198,34 @@ export const agentTraceEventSchema = new Schema(
   { collection: "agentTraceEvents", timestamps: true },
 );
 
+export const authNonceSchema = new Schema(
+  {
+    address: { type: String, required: true, lowercase: true },
+    nonce: { type: String, required: true },
+    domain: { type: String, required: true },
+    issuedAt: { type: String, required: true },
+    expirationTime: { type: String, required: true },
+    expiresAt: { type: Date, required: true },
+    usedAt: { type: Date },
+  },
+  { collection: "authNonces", timestamps: true },
+);
+
 export const executionAttemptSchema = new Schema(
   {
     wallet: { type: String, required: true, lowercase: true },
     planHash: { type: String, required: true },
+    simulationRunId: { type: String, required: true },
+    strategyType: { type: String, required: true },
+    plan: { type: mixed, required: true },
     txHashes: { type: [String], default: [] },
+    callReceipts: { type: mixed, default: [] },
     expectedState: { type: mixed },
     actualState: { type: mixed },
     status: { type: String, required: true },
+    expiresAt: { type: Date },
+    errorCode: { type: String },
+    dryRun: { type: mixed },
   },
   { collection: "executionAttempts", timestamps: true },
 );
@@ -213,6 +233,7 @@ export const executionAttemptSchema = new Schema(
 export const MONGO_SCHEMAS = {
   wallets: walletSchema,
   walletRiskPolicies: walletRiskPolicySchema,
+  authNonces: authNonceSchema,
   positionSnapshots: positionSnapshotSchema,
   governanceRawEvents: governanceRawEventSchema,
   protocolChanges: protocolChangeSchema,

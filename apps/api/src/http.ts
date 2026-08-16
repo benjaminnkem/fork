@@ -44,9 +44,11 @@ export class ForkExceptionFilter implements ExceptionFilter {
           ? 400
           : exception.code === "NO_RELEVANT_EXPOSURE" || exception.code === "NO_FEASIBLE_STRATEGY"
             ? 404
-            : exception.retryable
-              ? 503
-              : 422;
+            : exception.code === "SIMULATION_STALE" || exception.code === "MAINNET_STATE_MISMATCH"
+              ? 409
+              : exception.retryable
+                ? 503
+                : 422;
       response.status(status).json({ code: exception.code, message: exception.message });
       return;
     }

@@ -6,14 +6,13 @@ import {
 import type { ForkChainClient } from "@fork/blockchain";
 import { getBlockAnchor, withRpcRetry } from "@fork/blockchain";
 import type { GovernanceStore, IndexCursor } from "@fork/governance-core";
+import { applyReorgRollback, cursorHashMismatch } from "@fork/governance-core";
 import { ETHEREUM_CHAIN_ID, ForkError, type Address } from "@fork/shared";
 import { decodeGovernorProposalData } from "./decode.js";
 import { normalizeGovernorProposal } from "./normalize.js";
 
 export const ETHEREUM_GOVERNOR_SOURCE = "moonwell-ethereum-governor";
 export const FIRST_ETHEREUM_GOVERNOR_PROPOSAL = 169n;
-
-const REORG_LOOKBACK_BLOCKS = 64n;
 
 export interface GovernanceSyncResult {
   fromProposalId: bigint;
@@ -32,7 +31,7 @@ async function detectReorg(
     const block = await withRpcRetry("eth_getBlockByNumber(cursor)", () =>
       forkClient.client.getBlock({ blockNumber: cursor.lastProcessedBlock }),
     );
-    return block.hash !== cursor.lastProcessedBlockHash;
+    return cursorHashMismatch(cursor.lastProcessedBlockHash, block.hash ?? undefined);
   } catch {
     return true;
   }
@@ -109,11 +108,8 @@ export async function syncMoonwellGovernor(input: {
     input.startProposalId ??
     previous?.lastProposalId ??
     FIRST_ETHEREUM_GOVERNOR_PROPOSAL;
-  const fromProposalId = reorgDetected
-    ? FIRST_ETHEREUM_GOVERNOR_PROPOSAL
-    : start < FIRST_ETHEREUM_GOVERNOR_PROPOSAL
-      ? FIRST_ETHEREUM_GOVERNOR_PROPOSAL
-      : start;
+  const fromProposalId =
+    start < FIRST_ETHEREUM_GOVERNOR_PROPOSAL ? FIRST_ETHEREUM_GOVERNOR_PROPOSAL : start;
 
   let upserted = 0;
   for (let proposalId = fromProposalId; proposalId <= proposalCount; proposalId += 1n) {
@@ -230,11 +226,8 @@ export async function syncMoonwellGovernor(input: {
     updatedAt: new Date(),
   };
   if (reorgDetected && previous) {
-    const rolled =
-      previous.lastProcessedBlock > REORG_LOOKBACK_BLOCKS
-        ? previous.lastProcessedBlock - REORG_LOOKBACK_BLOCKS
-        : 0n;
-    cursor.lastProcessedBlock = rolled < safe.blockNumber ? rolled : safe.blockNumber;
+    const rolled = applyReorgRollback(previous, safe.blockNumber);
+    cursor.lastProcessedBlock = rolled.lastProcessedBlock;
   }
   await input.store.saveCursor(cursor);
 

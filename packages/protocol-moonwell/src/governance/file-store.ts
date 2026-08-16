@@ -68,7 +68,7 @@ export class JsonFileGovernanceStore implements GovernanceStore {
 
   private async persist() {
     const payload = {
-      cursors: [await this.memory.getCursor("moonwell-ethereum-governor")].filter(Boolean),
+      cursors: await this.memory.listCursors(),
       events: [],
       changes: await this.memory.listIndexedChanges(),
     };
@@ -87,6 +87,11 @@ export class JsonFileGovernanceStore implements GovernanceStore {
     await this.hydrate();
     await this.memory.saveCursor(cursor);
     await this.persist();
+  }
+
+  async listCursors() {
+    await this.hydrate();
+    return this.memory.listCursors();
   }
 
   async upsertRawEvent(event: RawGovernanceEvent) {

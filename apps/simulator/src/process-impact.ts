@@ -85,21 +85,29 @@ export async function processImpactSimulation(
         baseRpcUrl: config.BASE_RPC_URL,
         wallet: job.wallet as `0x${string}`,
       });
+      const strategyBody = toJsonSafe({
+        repay: {
+          status: comparison.repay.status,
+          amountRaw: comparison.repay.amountRaw,
+          reasons: comparison.repay.reasons,
+          plan: comparison.repay.plan,
+        },
+        addCollateral: {
+          status: comparison.addCollateral.status,
+          amountRaw: comparison.addCollateral.amountRaw,
+          reasons: comparison.addCollateral.reasons,
+          plan: comparison.addCollateral.plan,
+        },
+      }) as Record<string, unknown>;
       await appendRunEvent(
         models,
         run.id,
-        createEvent("STRATEGY_BRANCH_RESULT", {
-          repay: comparison.repay.status,
-          addCollateral: comparison.addCollateral.status,
-        }),
+        createEvent("STRATEGY_BRANCH_RESULT", strategyBody),
       );
       await appendRunEvent(
         models,
         run.id,
-        createEvent("RECOMMENDATION_READY", {
-          repay: comparison.repay.status,
-          addCollateral: comparison.addCollateral.status,
-        }),
+        createEvent("RECOMMENDATION_READY", strategyBody),
       );
     }
 

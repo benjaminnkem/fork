@@ -44,6 +44,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@fork/abis':
+        specifier: workspace:*
+        version: link:../../packages/abis
       '@fork/blockchain':
         specifier: workspace:*
         version: link:../../packages/blockchain
@@ -68,6 +71,9 @@ importers:
       '@fork/simulation-core':
         specifier: workspace:*
         version: link:../../packages/simulation-core
+      '@fork/strategy-engine':
+        specifier: workspace:*
+        version: link:../../packages/strategy-engine
       '@nestjs/common':
         specifier: ^11.2.1
         version: 11.2.1(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -132,15 +138,36 @@ importers:
       '@fork/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@fork/governance-core':
+        specifier: workspace:*
+        version: link:../../packages/governance-core
       '@fork/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      '@fork/persistence':
+        specifier: workspace:*
+        version: link:../../packages/persistence
       '@fork/protocol-moonwell':
         specifier: workspace:*
         version: link:../../packages/protocol-moonwell
+      '@fork/risk-engine':
+        specifier: workspace:*
+        version: link:../../packages/risk-engine
       '@fork/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@fork/simulation-core':
+        specifier: workspace:*
+        version: link:../../packages/simulation-core
+      bullmq:
+        specifier: 6.1.2
+        version: 6.1.2(ioredis@5.11.1)
+      ioredis:
+        specifier: ^5.8.2
+        version: 5.11.1
+      viem:
+        specifier: ^2.55.16
+        version: 2.55.16(typescript@5.9.2)(zod@4.4.3)
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -4581,10 +4608,6 @@ packages:
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
 
-  semver@7.7.3:
-    resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
-    engines: {node: '>=10'}
-
   semver@7.8.5:
     resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
     engines: {node: '>=10'}
@@ -6956,7 +6979,7 @@ snapshots:
       '@typescript-eslint/visitor-keys': 8.50.0
       debug: 4.4.3
       minimatch: 9.0.5
-      semver: 7.7.3
+      semver: 7.8.5
       tinyglobby: 0.2.15
       ts-api-utils: 2.1.0(typescript@5.9.2)
       typescript: 5.9.2
@@ -9113,8 +9136,6 @@ snapshots:
   scheduler@0.27.0: {}
 
   semver@6.3.1: {}
-
-  semver@7.7.3: {}
 
   semver@7.8.5: {}
 

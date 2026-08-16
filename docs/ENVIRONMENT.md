@@ -13,6 +13,7 @@ Keep this file synchronized with `.env.example`.
 | `API_PUBLIC_URL` | no | api | no | public API URL |
 | `SESSION_SECRET` | production | api | yes | wallet-auth sessions (Phase 10) |
 | `AUTH_NONCE_TTL_SECONDS` | no | api | no | signed-nonce TTL |
+| `AUTH_SESSION_TTL_SECONDS` | no, 28800 | api | no | wallet-auth session TTL |
 | `PUBLIC_RATE_LIMIT_*` | no | api | no | public analysis limits |
 | `MONGODB_URI` | production / Phase 8 local | api/indexer/simulator | yes | durable state |
 | `MONGODB_DB_NAME` | no | api | no | database name |
@@ -26,6 +27,7 @@ Keep this file synchronized with `.env.example`.
 | `MOONWELL_REGISTRY_VERSION` | no | protocol | no | pinned registry id |
 | `MOONWELL_ALLOW_REGISTRY_OVERRIDE` | no, default false | protocol | no | fail-closed override |
 | `GOVERNANCE_POLL_INTERVAL_MS` | no, 60000 | indexer | no | poll interval |
+| `RUN_INDEXER` | no | indexer | no | set to `1` for a live monitor tick test |
 | `GOVERNANCE_*_START_BLOCK` | later | indexer | no | backfill cursors |
 | `GOVERNANCE_LOG_BLOCK_RANGE` | no | indexer | no | eth_getLogs window |
 | `ANVIL_*` / `MAX_PARALLEL_FORKS` / `SIMULATION_*` | Phase 4 | simulator | no | fork controls; `FORK_START_TIMEOUT_MS` default 180000 |
@@ -35,7 +37,7 @@ Keep this file synchronized with `.env.example`.
 | `AGENT_*` | no | agent | no | step/time/token/invalid-call limits. `AGENT_INCLUDE_REASONING` stays false in production |
 | `DEFAULT_MIN_SAFETY_BUFFER_BPS` | product decision | risk | no | **do not invent**; unset until approved. Receipts record `NO_ADDITIONAL_BUFFER` when empty |
 | `SIMULATION_MAX_AGE_SECONDS` | no | simulation | no | freshness |
-| `ENABLE_MAINNET_TRANSACTION_PREPARATION` | no, false | execution | no | Phase 10 |
+| `ENABLE_MAINNET_TRANSACTION_PREPARATION` | no, false | execution | no | Phase 10: allow preparing signable plans. Server still never broadcasts. |
 | `ENABLE_AUTONOMOUS_MAINNET_EXECUTION` | must stay false | execution | no | V1 forbids this |
 | `NEXT_PUBLIC_API_URL` | web | web | no | public API |
 | `NEXT_PUBLIC_BASE_CHAIN_ID` | web | web | no | 8453 |

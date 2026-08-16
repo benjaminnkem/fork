@@ -101,6 +101,9 @@ export function SimulationView({ id }: { id: string }) {
         <Button asChild disabled={!proofReady}>
           <Link href={`/simulations/${run.id}/proof`}>Open proof</Link>
         </Button>
+        <Button asChild variant="outline" disabled={!proofReady}>
+          <Link href={`/simulations/${run.id}/execute`}>Review execution</Link>
+        </Button>
         {proof.error ? <ErrorState error={proof.error} title="Proof not ready" /> : null}
       </div>
     </div>

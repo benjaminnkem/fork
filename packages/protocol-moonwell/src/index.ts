@@ -23,6 +23,8 @@ export {
   FIRST_ETHEREUM_GOVERNOR_PROPOSAL,
 } from "./governance/sync.js";
 export { JsonFileGovernanceStore } from "./governance/file-store.js";
+export { refreshDestinationStatuses, destinationStatusFromFactor, BASE_DESTINATION_SOURCE } from "./governance/destination.js";
+export { refreshIndexedChangeStatuses } from "./governance/refresh.js";
 export {
   replayPinnedCollateralFactor,
   PINNED_REPLAY_FORK_BLOCK,
@@ -32,6 +34,8 @@ export {
   PINNED_REPAY_WALLET,
 } from "./governance/replay.js";
 export { buildAddCollateralPlan, buildRepayPlan } from "./strategy/plans.js";
+export { buildLiveAllowlistedPlan } from "./strategy/live-plan.js";
+export { executePlanCalls } from "./strategy/execute.js";
 export {
   assessAddCollateralFeasibility,
   assessRepayFeasibility,

@@ -3,11 +3,15 @@
 import Link from "next/link";
 import { ConnectWallet } from "@/components/connect-wallet";
 import { Badge } from "@/components/ui/badge";
-import { useHealth } from "@/hooks/use-api";
+import { useHealth, useMonitoring } from "@/hooks/use-api";
 
 export function SiteHeader() {
   const health = useHealth();
+  const monitoring = useMonitoring();
   const status = health.data?.status ?? (health.isError ? "down" : "checking");
+  const lag = monitoring.data?.indexer?.ethereum?.lagBlocks;
+  const reorg =
+    monitoring.data?.indexer?.ethereum?.reorgDetected || monitoring.data?.indexer?.base?.reorgDetected;
 
   return (
     <header className="border-b border-border">
@@ -32,6 +36,11 @@ export function SiteHeader() {
           <Badge variant={status === "ok" ? "default" : status === "degraded" ? "secondary" : "outline"}>
             API {status}
           </Badge>
+          {lag !== undefined ? (
+            <Badge variant={reorg ? "destructive" : "outline"}>
+              {reorg ? "reorg" : `index +${lag}`}
+            </Badge>
+          ) : null}
           <ConnectWallet />
         </div>
       </div>

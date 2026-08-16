@@ -7,6 +7,7 @@ import {
   getChanges,
   getHealthReady,
   getHistoricalReplays,
+  getMonitoring,
   getPositions,
   getProof,
   getRelevantChanges,
@@ -15,6 +16,15 @@ import {
   getStrategies,
   type HistoricalReplay,
 } from "@/lib/api";
+
+export function useMonitoring() {
+  return useQuery({
+    queryKey: ["monitoring"],
+    queryFn: getMonitoring,
+    refetchInterval: 15_000,
+    retry: 1,
+  });
+}
 
 export function useHealth() {
   return useQuery({

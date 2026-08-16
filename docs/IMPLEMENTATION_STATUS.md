@@ -1,6 +1,6 @@
 # Implementation status
 
-**Phase:** 9 — Next.js product UI  
+**Phase:** 11 — Continuous monitoring  
 **Date:** 2026-08-16
 
 ## Done
@@ -34,10 +34,18 @@
 - BullMQ `impact-simulation` worker in `apps/simulator`.
 - Next.js product UI: paste any Base address, connect a wallet separately, load real Moonwell positions/risk, list relevant changes with source/destination status, launch simulations, stream SSE progress, show before/after, strategies, agent-empty/trace states, and proof receipts.
 - Playwright covers the home/error paths. Live UI → API → Anvil flow is gated by `RUN_WEB_E2E=1`.
+- Signed-nonce wallet authentication with expiry and replay protection. Read-only analysis stays public.
+- `PUT /wallets/:address/policy` requires a session bound to that wallet.
+- `POST /execution/prepare` rebuilds allowlisted REPAY_DEBT / ADD_COLLATERAL calls from live Moonwell state, dry-runs them on a current-head Anvil fork, and never accepts client calldata.
+- `POST /execution/:id/register-tx` records a user-submitted hash, waits for the Base receipt, re-reads Comptroller state, and marks VERIFIED / PARTIAL / MISMATCH / FAILED.
+- The UI shows exact target, method, amount, and spender before the user signs on Base 8453.
+- Indexer poll loop persists Ethereum and Base cursors, detects reorgs, refreshes governor and destination CF status, marks stale/cancelled open simulations, and enqueues the pinned moonwell-176 impact job only for monitored wallets with relevant exposure.
+- `GET /api/v1/monitoring` exposes index lag, last tick, reorg flags, and queue age. The UI shows lag and a wallet-level monitor toggle.
 
 ## Not done (by design)
-- Signed-nonce wallet auth and mainnet execution preparation remain Phase 10.
-- Continuous monitoring remains Phase 11.
+- Email/Telegram notifications are not added.
+- Auto-simulation is limited to the pinned moonwell-176 DESTINATION_EFFECT_REPLAY. Other indexed changes refresh status/exposure only.
+- No mainnet send is performed by the server or by automated tests.
 
 ## Known limitations
 

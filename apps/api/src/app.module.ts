@@ -18,19 +18,31 @@ import { MemoryRateLimiter } from "./http.js";
 import { SimulationsService } from "./simulations/simulations.service.js";
 import { SimulationsController } from "./simulations/simulations.controller.js";
 import { WalletsController } from "./wallets/wallets.controller.js";
+import { PolicyController } from "./wallets/policy.controller.js";
 import { ChangesController } from "./changes/changes.controller.js";
 import { MetaController } from "./meta.controller.js";
+import { MonitoringController } from "./monitoring.controller.js";
+import { AuthService } from "./auth/auth.service.js";
+import { AuthController } from "./auth/auth.controller.js";
+import { ExecutionService } from "./execution/execution.service.js";
+import { ExecutionController } from "./execution/execution.controller.js";
 
 @Module({
   controllers: [
     HealthController,
     SimulationsController,
     WalletsController,
+    PolicyController,
     ChangesController,
     MetaController,
+    MonitoringController,
+    AuthController,
+    ExecutionController,
   ],
   providers: [
     SimulationsService,
+    AuthService,
+    ExecutionService,
     {
       provide: APP_CONFIG,
       useFactory: () => loadConfig(),

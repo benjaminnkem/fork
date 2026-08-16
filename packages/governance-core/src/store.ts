@@ -34,6 +34,7 @@ export interface NormalizedIndexedChange {
 export interface GovernanceStore {
   getCursor(sourceId: string): Promise<IndexCursor | undefined>;
   saveCursor(cursor: IndexCursor): Promise<void>;
+  listCursors(): Promise<IndexCursor[]>;
   upsertRawEvent(event: RawGovernanceEvent): Promise<void>;
   getRawEvent(id: string): Promise<RawGovernanceEvent | undefined>;
   upsertIndexedChange(record: NormalizedIndexedChange): Promise<void>;
@@ -52,6 +53,10 @@ export class MemoryGovernanceStore implements GovernanceStore {
 
   async saveCursor(cursor: IndexCursor) {
     this.cursors.set(cursor.sourceId, cursor);
+  }
+
+  async listCursors() {
+    return [...this.cursors.values()];
   }
 
   async upsertRawEvent(event: RawGovernanceEvent) {

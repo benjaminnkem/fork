@@ -76,6 +76,16 @@ export async function findRunById(
   return doc ? toRun(doc) : undefined;
 }
 
+export async function findOpenRunsByChange(
+  models: PersistenceModels,
+  protocolChangeId: string,
+): Promise<SimulationRunRecord[]> {
+  const docs = await models.simulationRuns
+    .find({ protocolChangeId, status: { $in: ["QUEUED", "RUNNING"] } })
+    .lean();
+  return (docs as Record<string, unknown>[]).map((doc) => toRun(doc));
+}
+
 export async function findRunByIdempotencyKey(
   models: PersistenceModels,
   idempotencyKey: string,

@@ -30,7 +30,13 @@ pnpm --filter simulator start
 ```
 
 Web: `http://localhost:3000`  
-Paste a Base address for read-only analysis. Connect wallet is optional and does not authenticate.
+Paste a Base address for read-only analysis. Connect wallet is optional. **Prove ownership** signs a nonce-bound message before policy or execution.
+
+Set `ENABLE_MAINNET_TRANSACTION_PREPARATION=true` only when you intend to prepare signable calls. The API still will not send them. Automated tests do not broadcast mainnet transactions.
+
+Indexer: `pnpm --filter indexer start`  
+Health/metrics: `curl localhost:4000/api/v1/monitoring`  
+Enable monitoring on a proved wallet in the UI, or `PUT /api/v1/wallets/:address/monitoring`.
 
 ```bash
 pnpm --filter api start

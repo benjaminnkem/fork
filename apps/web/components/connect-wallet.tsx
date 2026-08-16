@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ProveOwnership } from "@/components/prove-ownership";
 import { expectedBaseChainId } from "@/lib/wagmi";
 import { shortenHex } from "@/lib/format";
 
@@ -30,6 +31,7 @@ export function ConnectWallet() {
             Switch to Base
           </Button>
         ) : null}
+        <ProveOwnership />
         <Button variant="outline" size="sm" onClick={() => disconnect()}>
           {shortenHex(address)}
         </Button>

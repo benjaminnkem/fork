@@ -120,4 +120,16 @@ export const COLLECTION_INDEXES: CollectionIndexSpec[] = [
     name: "execution_attempts_wallet_plan",
     keys: { wallet: 1, planHash: 1, createdAt: -1 },
   },
+  {
+    collection: "authNonces",
+    name: "auth_nonces_nonce_unique",
+    keys: { nonce: 1 },
+    unique: true,
+  },
+  {
+    collection: "authNonces",
+    name: "auth_nonces_ttl",
+    keys: { expiresAt: 1 },
+    expireAfterSeconds: 0,
+  },
 ];

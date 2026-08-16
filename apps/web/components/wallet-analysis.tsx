@@ -6,6 +6,7 @@ import { ErrorState } from "@/components/error-state";
 import { PositionsTable } from "@/components/positions-table";
 import { RelevantChangesList } from "@/components/changes-list";
 import { RiskPanel } from "@/components/risk-panel";
+import { PolicyForm } from "@/components/policy-form";
 import { SimulateForm } from "@/components/simulate-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePositions, useRelevantChanges, useRisk } from "@/hooks/use-api";
@@ -47,6 +48,7 @@ export function WalletAnalysis({ address }: { address: string }) {
         ) : null}
       </section>
 
+      <PolicyForm address={address} />
       <SimulateForm wallet={address} changeId={simulate} />
     </div>
   );

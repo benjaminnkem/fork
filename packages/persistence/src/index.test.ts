@@ -8,6 +8,7 @@ describe("persistence schemas", () => {
       [
         "agentRuns",
         "agentTraceEvents",
+        "authNonces",
         "evidence",
         "executionAttempts",
         "exposures",
@@ -33,6 +34,7 @@ describe("persistence schemas", () => {
         "exposures_wallet_change_unique",
         "simulation_runs_idempotency_unique",
         "receipts_hash_unique",
+        "auth_nonces_nonce_unique",
       ]),
     );
   });

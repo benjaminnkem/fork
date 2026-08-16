@@ -13,6 +13,7 @@ export {
 export {
   appendRunEvent,
   createEvent,
+  findOpenRunsByChange,
   findReceiptByHash,
   findRunById,
   findRunByIdempotencyKey,
@@ -26,6 +27,7 @@ export {
 export {
   applyDeclaredIndexes,
   MONGO_SCHEMAS,
+  authNonceSchema,
   agentRunSchema,
   agentTraceEventSchema,
   evidenceSchema,

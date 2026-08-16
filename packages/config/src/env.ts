@@ -14,6 +14,7 @@ const envSchema = z.object({
   API_PUBLIC_URL: z.string().default("http://localhost:4000"),
   SESSION_SECRET: z.string().optional(),
   AUTH_NONCE_TTL_SECONDS: z.coerce.number().int().positive().default(300),
+  AUTH_SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(28_800),
   PUBLIC_RATE_LIMIT_TTL_SECONDS: z.coerce.number().int().positive().default(60),
   PUBLIC_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(60),
 

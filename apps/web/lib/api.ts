@@ -198,6 +198,7 @@ async function parseBody(response: Response): Promise<unknown> {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_V1}${path}`, {
     ...init,
+    credentials: "include",
     headers: {
       accept: "application/json",
       ...(init?.body ? { "content-type": "application/json" } : {}),
@@ -302,4 +303,117 @@ export function getHealthReady() {
 
 export function simulationStreamUrl(id: string) {
   return `${API_V1}/simulations/${id}/stream`;
+}
+
+export interface AuthSession {
+  address: string;
+  expiresAt: string;
+}
+
+export interface ExecutionPlan {
+  id: string;
+  wallet: string;
+  planHash: string;
+  simulationRunId: string;
+  strategyType: "REPAY_DEBT" | "ADD_COLLATERAL";
+  decodedCalls: Array<{
+    to: string;
+    value: string;
+    data: string;
+    description: string;
+    allowlistRuleId: string;
+    functionName: string;
+    args: unknown[];
+    spender?: string;
+    amountRaw?: string;
+  }>;
+  txHashes: string[];
+  expectedState: { maxShortfallRaw?: string; minSafetyBufferBps?: number } | unknown;
+  actualState: unknown;
+  status: string;
+  expiresAt?: string;
+  errorCode?: string;
+}
+
+export function requestAuthNonce(address: string) {
+  return request<{ address: string; nonce: string; message: string; expiresAt: string }>(
+    "/auth/nonce",
+    { method: "POST", body: JSON.stringify({ address }) },
+  );
+}
+
+export function verifyAuthSignature(input: { address: string; nonce: string; signature: string }) {
+  return request<AuthSession>("/auth/verify-signature", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getAuthSession() {
+  return request<AuthSession>("/auth/session");
+}
+
+export function logoutAuth() {
+  return request<{ ok: boolean }>("/auth/logout", { method: "POST" });
+}
+
+export function getWalletPolicy(address: string) {
+  return request<{ wallet: string; persisted: boolean; policy: Record<string, unknown> }>(
+    `/wallets/${address}/policy`,
+  );
+}
+
+export function putWalletPolicy(address: string, body: Record<string, unknown>) {
+  return request<{ wallet: string; persisted: boolean; policy: Record<string, unknown> }>(
+    `/wallets/${address}/policy`,
+    { method: "PUT", body: JSON.stringify(body) },
+  );
+}
+
+export function prepareExecution(input: {
+  wallet: string;
+  simulationId: string;
+  strategyType: "REPAY_DEBT" | "ADD_COLLATERAL";
+}) {
+  return request<ExecutionPlan>("/execution/prepare", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function registerExecutionTx(planId: string, input: { txHash: string; callIndex: number }) {
+  return request<ExecutionPlan>(`/execution/${planId}/register-tx`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getExecution(planId: string) {
+  return request<ExecutionPlan>(`/execution/${planId}`);
+}
+
+export function getMonitoring() {
+  return request<{
+    queue: { name: string; waiting: number; oldestAgeMs: number | null };
+    indexer: {
+      lastTickAt?: string;
+      ethereum?: { lagBlocks?: string; reorgDetected?: boolean };
+      base?: { lagBlocks?: string; reorgDetected?: boolean };
+      staleMarked?: number;
+      enqueued?: number;
+    } | null;
+  }>("/monitoring");
+}
+
+export function getWalletMonitoring(address: string) {
+  return request<{ wallet: string; monitoringEnabled: boolean; persisted: boolean }>(
+    `/wallets/${address}/monitoring`,
+  );
+}
+
+export function putWalletMonitoring(address: string, enabled: boolean) {
+  return request<{ wallet: string; monitoringEnabled: boolean; persisted: boolean }>(
+    `/wallets/${address}/monitoring`,
+    { method: "PUT", body: JSON.stringify({ enabled }) },
+  );
 }

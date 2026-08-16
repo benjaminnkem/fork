@@ -182,6 +182,8 @@ Before enabling transaction preparation in production:
 
 Autonomous mainnet execution remains disabled in V1.
 
+Automated tests construct and validate allowlisted plans and wallet-auth signatures with local viem accounts. They do not broadcast a Base Mainnet transaction. A real send stays user-controlled in the wallet UI.
+
 ## 9. Release checklist
 
 - [ ] PRD acceptance criteria satisfied.

@@ -18,7 +18,11 @@
 - Derived `safetyBufferBps` is `liquidity * 10000 / oraclePricedBorrows`. Canonical solvency remains Comptroller `getAccountLiquidity`.
 - The Groq agent cannot invent a rescue if both models fail or tools return infeasible. Live agent tests require `RUN_AGENT=1` and a Groq Console API key (`gsk_…`). A non-Groq key fails closed.
 - Simulation create/stream requires local Mongo and Redis (`docker compose up -d`). API E2E is gated by `RUN_API_E2E=1`.
-- Auth nonce/session and mainnet execution endpoints are not implemented yet. The UI can connect a wallet for address convenience only; that is not ownership proof.
+- Wallet auth is a signed nonce bound to `WEB_ORIGIN` and Base 8453. Connecting a wallet is still not ownership until the auth message is signed.
+- Mainnet transaction preparation is off unless `ENABLE_MAINNET_TRANSACTION_PREPARATION=true`. The API never broadcasts. The user must sign each allowlisted call in the wallet. Autonomous execution stays disabled.
+- Prepare dry-runs the exact plan on an Anvil fork of the current Base safe head. That needs `anvil` and archive RPC and can take as long as other forks.
 - The impact worker does not start a Groq agent session. The UI shows an explicit empty agent-trace state unless an agent run id is persisted.
 - TypeScript remains 5.9.2 even though npm latest is 7.x. wagmi 3.7.6 wants `typescript>=5.9.3`; the lock stays on 5.9.2.
 - Playwright live UI E2E requires `RUN_WEB_E2E=1` plus running API, simulator, Mongo, Redis, and archive RPC. Default Playwright covers the static/error paths only.
+- The indexer writes cursors and change status to `.data/governance-store.json` and metrics to `.data/monitoring-metrics.json`. Auto-enqueue of impact jobs requires Mongo, Redis, and `monitoringEnabled` on the wallet. Only proposal 176 is auto-simulated.
+- Destination execution is inferred from live Comptroller `markets()` matching the decoded CF target, not from a Wormhole VAA.

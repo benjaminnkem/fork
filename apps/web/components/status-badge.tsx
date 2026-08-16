@@ -22,6 +22,12 @@ const STRATEGY: Record<string, "default" | "secondary" | "destructive" | "outlin
   INFEASIBLE: "outline",
   REJECTED: "destructive",
   INCOMPLETE: "outline",
+  PREPARED: "secondary",
+  SUBMITTED: "secondary",
+  PARTIAL: "secondary",
+  MISMATCH: "destructive",
+  FAILED: "destructive",
+  EXPIRED: "outline",
 };
 
 export function StatusBadge({
