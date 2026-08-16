@@ -23,6 +23,9 @@ importers:
       '@fork/shared':
         specifier: workspace:*
         version: link:packages/shared
+      '@fork/simulation-core':
+        specifier: workspace:*
+        version: link:packages/simulation-core
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
@@ -448,6 +451,9 @@ importers:
       '@fork/shared':
         specifier: workspace:*
         version: link:../shared
+      '@fork/simulation-core':
+        specifier: workspace:*
+        version: link:../simulation-core
       viem:
         specifier: ^2.55.16
         version: 2.55.16(typescript@5.9.2)(zod@4.4.3)
@@ -522,9 +528,15 @@ importers:
 
   packages/simulation-core:
     dependencies:
+      '@fork/blockchain':
+        specifier: workspace:*
+        version: link:../blockchain
       '@fork/shared':
         specifier: workspace:*
         version: link:../shared
+      viem:
+        specifier: ^2.55.16
+        version: 2.55.16(typescript@5.9.2)(zod@4.4.3)
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*

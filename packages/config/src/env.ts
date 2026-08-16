@@ -42,7 +42,7 @@ const envSchema = z.object({
   ANVIL_PORT_START: z.coerce.number().int().positive().default(9500),
   MAX_PARALLEL_FORKS: z.coerce.number().int().positive().default(2),
   SIMULATION_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
-  FORK_START_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
+  FORK_START_TIMEOUT_MS: z.coerce.number().int().positive().default(180_000),
   SIMULATION_RECEIPT_SCHEMA_VERSION: z.string().default("1"),
 
   GROQ_API_KEY: z.string().optional(),

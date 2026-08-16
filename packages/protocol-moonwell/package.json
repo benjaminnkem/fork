@@ -33,6 +33,7 @@
     "@fork/protocol-core": "workspace:*",
     "@fork/risk-engine": "workspace:*",
     "@fork/shared": "workspace:*",
+    "@fork/simulation-core": "workspace:*",
     "viem": "^2.55.16"
   }
 }

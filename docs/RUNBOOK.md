@@ -20,6 +20,7 @@ pnpm chain:ethereum:smoke
 pnpm test:chain
 pnpm moonwell:wallet 0x416ec2ca21a38cbcfeacd6a14532b3f348356d23
 pnpm governance:sync
+pnpm fork:replay moonwell-176
 ```
 
 Mongo/Redis are unused until later phases.

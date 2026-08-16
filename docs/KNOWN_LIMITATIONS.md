@@ -1,6 +1,7 @@
 # Known limitations
 
-- Phase 3 reconstructs Ethereum governor proposals and Base destination CF calls. Destination Temporal Governor queue/execute logs are not ingested yet (Alchemy free `eth_getLogs` is limited to 10 blocks). Destination status stays `DESTINATION_PENDING` after source execution unless later proven.
+- Replay is `DESTINATION_EFFECT_REPLAY`, not a full Wormhole/Temporal Governor VAA replay. Anvil impersonates the Temporal Governor and sends the exact destination calldata.
+- Fork startup needs archive RPC and can take well over 15s. Default `FORK_START_TIMEOUT_MS` is 180000.
 - Pre-169 proposal IDs on the Ethereum governor have empty calldata.
 - Archive capability is not proven until a real historical fork in Phase 4. A provider that answers `eth_blockNumber` may still fail on old state.
 - Public Base RPC remains fallback-only and is rate-limited. Ethereum has no default public fallback unless `ETHEREUM_FALLBACK_RPC_URL` is set.

@@ -21,3 +21,9 @@ export {
   FIRST_ETHEREUM_GOVERNOR_PROPOSAL,
 } from "./governance/sync.js";
 export { JsonFileGovernanceStore } from "./governance/file-store.js";
+export {
+  replayPinnedCollateralFactor,
+  PINNED_REPLAY_FORK_BLOCK,
+  PINNED_REPLAY_FORK_HASH,
+  PINNED_REPLAY_WALLET,
+} from "./governance/replay.js";

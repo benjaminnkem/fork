@@ -102,7 +102,19 @@ Pinned V1 change: **proposal 176**, executed (`state=5`). Destination batch to B
 
 Support level: `DESTINATION_EFFECT_REPLAY`. Destination queue/execute logs are not required to reconstruct the Base economic effect.
 
-## 8. Open Phase 4 questions
+## 8. Phase 4 replay pin
+
+Proposal 176 Base execution was located by binary-searching `markets(mwrsETH)` over archive state:
+
+- Before: block `48025643` hash `0x587e0cab88e0fd0929f24e36240bd4943e8162cab4a42bb1064d48936fa2e8bc` CF `0.68e18`
+- After: block `48025644` hash `0x76af174fa79a4cf9cd8a78a57c7bf2776c254ebd39f01ab5576a66ffc777416c` CF `0.52e18`
+- Later 179: block `49239739` CF `0.46e18`
+
+Comptroller `admin()` is Temporal Governor `0x8b621804a7637b781e2BbD58e256a591F2dF7d51`.
+
+Real mwrsETH supplier at the pre-event block (from `alchemy_getAssetTransfers` + `getAccountSnapshot`): `0x9eec3976435a37b0340ecbd966c226a691956b35` (entered as collateral, non-zero liquidity, shortfall 0). Isolated single-market wallet also observed: `0x494c7fdb753c15b69fea2293e1b76567ca94462d`.
+
+## 9. Open Phase 5 questions
 
 - Exact MultichainGovernorV2 event/ABI surface on implementation `0x78c5…b169`.
 - Temporal Governor trusted-sender set and proposal delay after MIP-X58.

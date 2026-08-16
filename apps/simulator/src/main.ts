@@ -14,7 +14,7 @@ logger.info(
     anvilHost: config.ANVIL_HOST,
     maxParallelForks: config.MAX_PARALLEL_FORKS,
   },
-  "simulator skeleton started; Phase 4 owns Anvil lifecycle. No fork is spawned in Phase 0.",
+  "simulator process online; use pnpm fork:replay moonwell-176 for the Anvil replay path",
 );
 
 function shutdown(signal: string) {

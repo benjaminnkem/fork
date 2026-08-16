@@ -26,6 +26,8 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@fork/shared": "workspace:*"
+    "@fork/blockchain": "workspace:*",
+    "@fork/shared": "workspace:*",
+    "viem": "^2.55.16"
   }
 }

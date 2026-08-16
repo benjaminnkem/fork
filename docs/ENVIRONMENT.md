@@ -28,7 +28,7 @@ Keep this file synchronized with `.env.example`.
 | `GOVERNANCE_POLL_INTERVAL_MS` | no, 60000 | indexer | no | poll interval |
 | `GOVERNANCE_*_START_BLOCK` | later | indexer | no | backfill cursors |
 | `GOVERNANCE_LOG_BLOCK_RANGE` | no | indexer | no | eth_getLogs window |
-| `ANVIL_*` / `MAX_PARALLEL_FORKS` / `SIMULATION_*` | later | simulator | no | fork controls |
+| `ANVIL_*` / `MAX_PARALLEL_FORKS` / `SIMULATION_*` | Phase 4 | simulator | no | fork controls; `FORK_START_TIMEOUT_MS` default 180000 |
 | `GROQ_API_KEY` | Phase 7 / live agent tests | agent | yes | Groq |
 | `GROQ_PLANNER_MODEL` | no | agent | no | default `openai/gpt-oss-120b` |
 | `GROQ_FALLBACK_MODEL` | no | agent | no | default `openai/gpt-oss-20b` |

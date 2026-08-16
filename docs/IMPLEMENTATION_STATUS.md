@@ -1,6 +1,6 @@
 # Implementation status
 
-**Phase:** 3 — Moonwell governance indexer  
+**Phase:** 4 — Anvil destination-effect replay  
 **Date:** 2026-08-16
 
 ## Done
@@ -16,9 +16,10 @@
 - First supported change class: `_setCollateralFactor` on the Base Comptroller.
 - Pinned historical event: proposal **176** (mwrsETH CF → 0.52e18).
 - `pnpm governance:sync` writes normalized changes to `.data/governance-store.json`.
+- DESTINATION_EFFECT_REPLAY of proposal 176: Anvil fork of Base `48025643` / `0x587e…e8bc`, impersonate Temporal Governor, exact `_setCollateralFactor` calldata, measure Comptroller risk.
+- CLI `pnpm fork:replay moonwell-176`.
 
 ## Not done (by design)
-- No Anvil forks or simulations (Phase 4).
 - No Groq agent (Phase 7).
 - No Mongo/Redis/BullMQ wiring (Phase 8).
 - No wallet connect or mainnet tx prep (Phase 9–10).

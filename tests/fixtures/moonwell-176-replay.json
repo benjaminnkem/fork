@@ -1,0 +1,15 @@
+{
+  "scenario": "moonwell-176",
+  "proposalId": "176",
+  "replayGrade": "DESTINATION_EFFECT_REPLAY",
+  "chainId": 8453,
+  "forkBlockNumber": "48025643",
+  "forkBlockHash": "0x587e0cab88e0fd0929f24e36240bd4943e8162cab4a42bb1064d48936fa2e8bc",
+  "executionBlockNumber": "48025644",
+  "wallet": "0x9eec3976435a37b0340ecbd966c226a691956b35",
+  "isolatedWallet": "0x494c7fdb753c15b69fea2293e1b76567ca94462d",
+  "market": "0xfC41B49d064Ac646015b459C522820DB9472F4B5",
+  "beforeCollateralFactorMantissa": "680000000000000000",
+  "afterCollateralFactorMantissa": "520000000000000000",
+  "temporalGovernor": "0x8b621804a7637b781e2BbD58e256a591F2dF7d51"
+}

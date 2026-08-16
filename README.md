@@ -43,6 +43,7 @@ pnpm dev
 | `pnpm test:chain` | real-RPC integration tests (requires `.env`) |
 | `pnpm moonwell:wallet <0x…>` | read real Moonwell Core positions/risk on Base |
 | `pnpm governance:sync` | ingest Ethereum Moonwell proposals and decode Base CF effects |
+| `pnpm fork:replay moonwell-176` | Anvil-fork proposal 176 CF change and print a proof receipt |
 
 API health: `http://localhost:4000/health/live`  
 Web: `http://localhost:3000`

@@ -14,13 +14,15 @@
     "chain:ethereum:smoke": "tsx scripts/chain-smoke.ts --chain=ethereum",
     "chain:smoke": "tsx scripts/chain-smoke.ts",
     "moonwell:wallet": "tsx scripts/moonwell-wallet.ts",
-    "governance:sync": "tsx scripts/governance-sync.ts"
+    "governance:sync": "tsx scripts/governance-sync.ts",
+    "fork:replay": "tsx scripts/fork-replay.ts"
   },
   "devDependencies": {
     "@fork/blockchain": "workspace:*",
     "@fork/config": "workspace:*",
     "@fork/governance-core": "workspace:*",
     "@fork/protocol-moonwell": "workspace:*",
+    "@fork/simulation-core": "workspace:*",
     "@fork/shared": "workspace:*",
     "prettier": "^3.7.4",
     "tsx": "^4.20.5",
