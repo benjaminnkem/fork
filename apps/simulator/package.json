@@ -12,9 +12,15 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fork/blockchain": "workspace:*",
     "@fork/config": "workspace:*",
     "@fork/observability": "workspace:*",
-    "@fork/shared": "workspace:*"
+    "@fork/persistence": "workspace:*",
+    "@fork/protocol-moonwell": "workspace:*",
+    "@fork/shared": "workspace:*",
+    "@fork/simulation-core": "workspace:*",
+    "bullmq": "6.1.2",
+    "ioredis": "^5.8.2"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

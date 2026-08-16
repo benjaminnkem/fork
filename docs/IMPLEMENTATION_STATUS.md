@@ -1,6 +1,6 @@
 # Implementation status
 
-**Phase:** 7 — Groq agent orchestrator  
+**Phase:** 9 — Next.js product UI  
 **Date:** 2026-08-16
 
 ## Done
@@ -22,18 +22,22 @@
 - Versioned `UserRiskPolicy`. `DEFAULT_MIN_SAFETY_BUFFER_BPS` remains unset; a required buffer fails closed until a verified `safetyBufferBps` formula exists.
 - Material-risk classification from Comptroller before/after liquidity and shortfall, including floored `liquidityDropBps`.
 - Canonical receipt body + keccak hash. Anvil post-tx hashes are run evidence and are not hashed.
-- Mongo schemas/indexes in `@fork/persistence` (no API/index migration wiring yet).
+- Mongo schemas/indexes in `@fork/persistence`. Nest/Mongoose connect and create indexes at API/simulator startup.
 - CLI `pnpm receipt:reproduce [file]` re-runs the pinned replay and compares economic fields.
 - `REPAY_DEBT` and `ADD_COLLATERAL` plans with exact ERC20 approvals, pause/cap/balance checks, and integer bounds.
 - Every candidate amount is executed on a reset Anvil snapshot, then proposal 176 is applied, then Comptroller post-state is checked.
 - `pnpm fork:strategies moonwell-176` compares both strategies. `--force-search-buffer` uses the measured post-change buffer + 1 so search is exercised without inventing a product default.
 - Groq agent with `openai/gpt-oss-120b` and fallback `openai/gpt-oss-20b`. Tools are allowlisted, Zod-validated, and backed by the Phase 2–6 services. No solvency math or arbitrary txs.
 - Production traces are user-safe summaries only. Hidden reasoning is not stored.
-- CLI `pnpm fork:agent moonwell-176 [wallet]`. Live Groq tests are gated by `GROQ_API_KEY` and `RUN_AGENT=1`.
+- CLI `pnpm fork:agent moonwell-176 [wallet]`. Live agent tests are gated by `GROQ_API_KEY` and `RUN_AGENT=1`.
+- NestJS `/api/v1` public reads, queued impact simulations, reconnect-safe SSE, and proof/strategy endpoints.
+- BullMQ `impact-simulation` worker in `apps/simulator`.
+- Next.js product UI: paste any Base address, connect a wallet separately, load real Moonwell positions/risk, list relevant changes with source/destination status, launch simulations, stream SSE progress, show before/after, strategies, agent-empty/trace states, and proof receipts.
+- Playwright covers the home/error paths. Live UI → API → Anvil flow is gated by `RUN_WEB_E2E=1`.
 
 ## Not done (by design)
-- No Mongo/Redis/BullMQ wiring (Phase 8).
-- No wallet connect or mainnet tx prep (Phase 9–10).
+- Signed-nonce wallet auth and mainnet execution preparation remain Phase 10.
+- Continuous monitoring remains Phase 11.
 
 ## Known limitations
 

@@ -114,6 +114,19 @@ export const simulationRunSchema = new Schema(
     before: { type: mixed },
     after: { type: mixed },
     errorCode: { type: String },
+    scenario: { type: String },
+    includeStrategies: { type: Boolean, default: false },
+    events: {
+      type: [
+        {
+          id: { type: String, required: true },
+          type: { type: String, required: true },
+          at: { type: Date, required: true },
+          data: { type: mixed },
+        },
+      ],
+      default: [],
+    },
     startedAt: { type: Date },
     completedAt: { type: Date },
   },

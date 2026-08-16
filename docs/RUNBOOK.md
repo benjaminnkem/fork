@@ -24,9 +24,22 @@ pnpm fork:replay moonwell-176
 pnpm receipt:reproduce .data/replay-moonwell-176.json
 pnpm fork:strategies moonwell-176 --force-search-buffer
 pnpm fork:agent moonwell-176
+docker compose up -d
+pnpm --filter api start
+pnpm --filter simulator start
 ```
 
-Mongo schemas live in `@fork/persistence`. Nest/Mongo wiring is Phase 8.
+Web: `http://localhost:3000`  
+Paste a Base address for read-only analysis. Connect wallet is optional and does not authenticate.
+
+```bash
+pnpm --filter api start
+pnpm --filter simulator start
+pnpm --filter web dev
+RUN_WEB_E2E=1 pnpm test:e2e
+```
+
+Mongo schemas live in `@fork/persistence`. Nest/Mongo connect and create indexes at startup.
 
 ## Failures
 

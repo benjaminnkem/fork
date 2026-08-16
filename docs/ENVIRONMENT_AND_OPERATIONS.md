@@ -182,8 +182,8 @@ Exact scripts must be documented by Codex after implementation.
 7. `pnpm receipt:reproduce .data/replay-moonwell-176.json`
 8. `pnpm fork:strategies moonwell-176 --force-search-buffer`
 9. `pnpm fork:agent moonwell-176`
-7. start API/worker/web;
-8. run Playwright E2E.
+10. `docker compose up -d` then start API and simulator
+11. run Playwright E2E (`pnpm test:e2e`; set `RUN_WEB_E2E=1` with API + simulator for the live Anvil path).
 
 None of these should return fabricated fallback data.
 

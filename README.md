@@ -6,7 +6,7 @@ Autonomous DeFi pre-execution risk agent. It applies a known protocol change to 
 
 V1 scope: Moonwell Core on Base Mainnet. Moonwell is adapter #1, not the product.
 
-This repository is in **Phase 0**: verified protocol research plus a compilable monorepo skeleton. It does not yet read wallets, index governance, or spawn Anvil.
+This repository is in **Phase 9**: the Next.js UI reads live Moonwell/API data, queues Anvil simulations, and streams proof. Wallet authentication and mainnet execution remain Phase 10.
 
 ## Prerequisites
 
@@ -47,6 +47,9 @@ pnpm dev
 | `pnpm receipt:reproduce [file]` | re-run the stored receipt and compare economic fields |
 | `pnpm fork:strategies moonwell-176 [wallet]` | compare REPAY_DEBT and ADD_COLLATERAL on a real fork |
 | `pnpm fork:agent moonwell-176 [wallet]` | Groq agent over the real simulation tools |
+| `docker compose up -d` | local MongoDB and Redis |
+| `pnpm --filter api start` / `pnpm --filter simulator start` | API + impact worker |
+| `pnpm test:e2e` | Playwright home/error paths; add `RUN_WEB_E2E=1` for live UI → Anvil |
 
 API health: `http://localhost:4000/health/live`  
 Web: `http://localhost:3000`

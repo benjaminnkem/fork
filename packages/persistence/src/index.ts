@@ -3,6 +3,27 @@ export {
   type CollectionIndexSpec,
 } from "./indexes.js";
 export {
+  connectMongo,
+  createPersistenceModels,
+  disconnectMongo,
+  ensureMongoIndexes,
+  pingMongo,
+  type PersistenceModels,
+} from "./connect.js";
+export {
+  appendRunEvent,
+  createEvent,
+  findReceiptByHash,
+  findRunById,
+  findRunByIdempotencyKey,
+  insertSimulationRun,
+  saveReceipt,
+  SIMULATION_EVENT_TYPES,
+  type SimulationEvent,
+  type SimulationEventType,
+  type SimulationRunRecord,
+} from "./runs.js";
+export {
   applyDeclaredIndexes,
   MONGO_SCHEMAS,
   agentRunSchema,

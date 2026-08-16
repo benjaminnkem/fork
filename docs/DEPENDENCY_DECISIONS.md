@@ -18,13 +18,13 @@ Recorded 2026-08-16 during Phase 0. Versions are current stables from npm at boo
 | Mongo image | mongo:7 | local compose |
 | Redis image | redis:7-alpine | local compose |
 | viem | 2.55.16 | locked for Phase 1; not wired yet |
-| wagmi | 3.7.6 | locked for Phase 9; not installed yet |
-| mongoose | 9.9.2 | schemas/indexes in `@fork/persistence` (Phase 5). Nest connection/migrations remain Phase 8 |
-| bullmq | 6.1.2 | locked for Phase 8; not installed yet |
+| wagmi | 3.7.6 | Phase 9 wallet connect; injected plus optional WalletConnect |
+| mongoose | 9.9.2 | schemas/indexes in `@fork/persistence`; API/simulator connect and create indexes at startup |
+| bullmq | 6.1.2 | impact-simulation queue between API and simulator |
 | groq-sdk | 1.5.0 | Groq local tool calling in `@fork/agent-core` (Phase 7) |
 | @moonwell-fi/moonwell-sdk | 0.22.0 | current; used as a research source, not a runtime dep yet |
-| Playwright | 1.62.1 | locked for Phase 9 E2E; not installed yet |
-| Tailwind | 4.3.3 | locked for Phase 9; not installed in the Phase 0 web skeleton |
+| Playwright | 1.62.1 | Phase 9 browser E2E in `apps/web` |
+| Tailwind | 4.3.3 | Phase 9 web app + shadcn/ui |
 
 ## Explicit non-choices
 

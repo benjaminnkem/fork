@@ -14,7 +14,7 @@ Keep this file synchronized with `.env.example`.
 | `SESSION_SECRET` | production | api | yes | wallet-auth sessions (Phase 10) |
 | `AUTH_NONCE_TTL_SECONDS` | no | api | no | signed-nonce TTL |
 | `PUBLIC_RATE_LIMIT_*` | no | api | no | public analysis limits |
-| `MONGODB_URI` | production | api/indexer/simulator | yes | durable state |
+| `MONGODB_URI` | production / Phase 8 local | api/indexer/simulator | yes | durable state |
 | `MONGODB_DB_NAME` | no | api | no | database name |
 | `REDIS_URL` | production | api/indexer/simulator | yes | queues |
 | `BASE_CHAIN_ID` | must be 8453 | blockchain | no | locked V1 chain |
@@ -39,6 +39,7 @@ Keep this file synchronized with `.env.example`.
 | `ENABLE_AUTONOMOUS_MAINNET_EXECUTION` | must stay false | execution | no | V1 forbids this |
 | `NEXT_PUBLIC_API_URL` | web | web | no | public API |
 | `NEXT_PUBLIC_BASE_CHAIN_ID` | web | web | no | 8453 |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | optional | web | no | later wallet UX |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | optional | web | no | WalletConnect connector; injected wallets work without it |
+| `RUN_WEB_E2E` | no | web | no | set to `1` for live Playwright UI → API → Anvil |
 
 Production (`NODE_ENV=production` or `APP_ENV=production`) refuses to start without session, Mongo, Redis, Base RPC, and Ethereum RPC. It also refuses autonomous mainnet execution.
