@@ -1,0 +1,11 @@
+{
+  "researchedAt": "2026-08-16",
+  "chainId": 8453,
+  "discovery": {
+    "method": "alchemy_getAssetTransfers",
+    "contract": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+    "sampleTx": "0x16413fd18b300897960ff7492ba497bdc0a90679632f40f816f7f04f5403f86e"
+  },
+  "activeWallet": "0x416ec2ca21a38cbcfeacd6a14532b3f348356d23",
+  "emptyWallet": "0x0000000000000000000000000000000000000001"
+}

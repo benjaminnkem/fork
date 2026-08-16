@@ -1,5 +1,21 @@
 import registryJson from "./registry/moonwell-core-2026-08-16.json" with { type: "json" };
 
+export {
+  moonwellComptrollerAbi,
+  moonwellMTokenAbi,
+  erc20MetadataAbi,
+  MOONWELL_ABI_PROVENANCE,
+} from "./moonwell.js";
+export {
+  moonwellMultichainGovernorAbi,
+  wormholePublishMessageAbi,
+  moonwellTemporalGovernorAbi,
+  moonwellSetCollateralFactorAbi,
+  ETHEREUM_WORMHOLE_CORE,
+  SET_COLLATERAL_FACTOR_SELECTOR,
+  PUBLISH_MESSAGE_SELECTOR,
+} from "./moonwell-governor.js";
+
 export const CURRENT_REGISTRY_VERSION = "moonwell-core-2026-08-16";
 
 export type ContractRecord = {

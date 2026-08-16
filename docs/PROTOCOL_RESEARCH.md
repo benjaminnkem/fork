@@ -74,7 +74,35 @@ Checked https://console.groq.com/docs/models and https://console.groq.com/docs/d
 - Fallback: `openai/gpt-oss-20b` (production).
 - `llama-3.1-8b-instant` and `llama-3.3-70b-versatile` shut down for free/developer usage on 2026-08-16. Do not use them.
 
-## 6. Open Phase 3 questions (not blocking bootstrap)
+## 6. Phase 2 read-path verification
+
+On 2026-08-16, live Base reads confirmed:
+
+- `markets(address)` returns `(bool isListed, uint256 collateralFactorMantissa)` only, matching official docs and not the 3-field Compound V2 struct.
+- `getAccountSnapshot` / `getAccountLiquidity` / `getAllMarkets` / `getAssetsIn` decode as documented.
+- `getAllMarkets()` returned 21 markets.
+- Wallet `0x416ec2ca21a38cbcfeacd6a14532b3f348356d23` was discovered from `alchemy_getAssetTransfers` on mUSDC (`0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22`), sample tx `0x16413fd18b300897960ff7492ba497bdc0a90679632f40f816f7f04f5403f86e`. Snapshot showed a non-zero mUSDC balance and Comptroller liquidity with `error=0`, `shortfall=0`.
+
+Alchemy free-tier `eth_getLogs` is limited to a 10-block range. Discovery used `alchemy_getAssetTransfers` instead.
+
+## 7. Phase 3 governance verification
+
+Verified 2026-08-16 on Ethereum governor `0x8769B70ac7c93AF0e75de0D69877709B66d75838`:
+
+- `proposalCount() = 182`
+- IDs `< 169` exist but have empty `getProposalData` and `state = 6` (treated as `EXPIRED` / pre-migration placeholders)
+- Working views: `state`, `getProposalData(address[],uint256[],bytes[])`, `proposalVotes`, `liveProposals`, `votingPeriod=259200`, `crossChainVoteCollectionPeriod=86400`, `quorum`, `proposalThreshold`
+- `proposalInformation` reverts on this ABI; not used
+- Governor actions that affect Base are not raw Comptroller calls. They are Wormhole `publishMessage` (`0xb19a437e`) to core `0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B`
+- Payload ABI is `(address temporalGovernor, address[] targets, uint256[] values, bytes[] calldatas)`
+- Base Temporal Governor `proposalDelay() = 86400`
+- Observed governor `state` values: `2` cancelled, `5` executed, `6` empty/expired. Mapped 0=PROPOSED, 1=APPROVED (cross-chain vote collection), 2=CANCELLED, 3=UNKNOWN (defeated), 4=APPROVED, 5=EXECUTED, 6=EXPIRED
+
+Pinned V1 change: **proposal 176**, executed (`state=5`). Destination batch to Base Temporal Governor `_setCollateralFactor(0xfC41B49d064Ac646015b459C522820DB9472F4B5, 520000000000000000)` on Comptroller `0xfBb21d0380beE3312B33c4353c8936a0F13EF26C` (mwrsETH → 52%). Related later CF updates: 175 set 68%, 179 set 46% (current onchain CF).
+
+Support level: `DESTINATION_EFFECT_REPLAY`. Destination queue/execute logs are not required to reconstruct the Base economic effect.
+
+## 8. Open Phase 4 questions
 
 - Exact MultichainGovernorV2 event/ABI surface on implementation `0x78c5…b169`.
 - Temporal Governor trusted-sender set and proposal delay after MIP-X58.

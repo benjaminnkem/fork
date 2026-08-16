@@ -1,22 +1,23 @@
 # Implementation status
 
-**Phase:** 1 — blockchain/RPC foundation  
+**Phase:** 3 — Moonwell governance indexer  
 **Date:** 2026-08-16
 
 ## Done
 
 - Phase 0 research + skeleton.
-- viem public clients for Base `8453` and Ethereum `1` with primary/fallback transports.
-- Chain-ID validation, latest/safe/finalized/historical anchors (number + hash), bigint-safe JSON.
-- Typed RPC error classification and bounded retry.
-- Pinned Moonwell registry bytecode checks against live RPCs.
-- `pnpm verify:contracts`, `pnpm chain:smoke`, and real-chain Vitest gated on env.
-- API `/health/ready` probes configured RPCs.
+- Phase 1 viem clients, anchors, registry bytecode checks.
+- Moonwell Core read adapter on Base: `getAllMarkets`, `getAccountSnapshot`, `getAssetsIn`, `getAccountLiquidity`.
+- Canonical risk from Comptroller only. Token amounts are `bigint`.
+- CLI `pnpm moonwell:wallet <address>`.
+- Live tests against a wallet discovered from real mUSDC transfers.
+- Ethereum MultichainGovernor ingest via `getProposalData`/`state`/`proposalVotes`.
+- Wormhole `publishMessage` payload decode to Base Temporal Governor calls.
+- First supported change class: `_setCollateralFactor` on the Base Comptroller.
+- Pinned historical event: proposal **176** (mwrsETH CF → 0.52e18).
+- `pnpm governance:sync` writes normalized changes to `.data/governance-store.json`.
 
 ## Not done (by design)
-
-- No Moonwell position reads (Phase 2).
-- No governance decoding/indexing (Phase 3).
 - No Anvil forks or simulations (Phase 4).
 - No Groq agent (Phase 7).
 - No Mongo/Redis/BullMQ wiring (Phase 8).

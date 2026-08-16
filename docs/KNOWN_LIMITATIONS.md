@@ -1,6 +1,7 @@
 # Known limitations
 
-- Phase 1 can read live chain heads and confirm contract bytecode. It cannot analyze a wallet or prove a governance effect.
+- Phase 3 reconstructs Ethereum governor proposals and Base destination CF calls. Destination Temporal Governor queue/execute logs are not ingested yet (Alchemy free `eth_getLogs` is limited to 10 blocks). Destination status stays `DESTINATION_PENDING` after source execution unless later proven.
+- Pre-169 proposal IDs on the Ethereum governor have empty calldata.
 - Archive capability is not proven until a real historical fork in Phase 4. A provider that answers `eth_blockNumber` may still fail on old state.
 - Public Base RPC remains fallback-only and is rate-limited. Ethereum has no default public fallback unless `ETHEREUM_FALLBACK_RPC_URL` is set.
 - Moonwell Views addresses disagree between official docs and SDK 0.22.0. Unused until re-verified.

@@ -12,11 +12,15 @@
     "verify:contracts": "tsx scripts/verify-contracts.ts",
     "chain:base:smoke": "tsx scripts/chain-smoke.ts --chain=base",
     "chain:ethereum:smoke": "tsx scripts/chain-smoke.ts --chain=ethereum",
-    "chain:smoke": "tsx scripts/chain-smoke.ts"
+    "chain:smoke": "tsx scripts/chain-smoke.ts",
+    "moonwell:wallet": "tsx scripts/moonwell-wallet.ts",
+    "governance:sync": "tsx scripts/governance-sync.ts"
   },
   "devDependencies": {
     "@fork/blockchain": "workspace:*",
     "@fork/config": "workspace:*",
+    "@fork/governance-core": "workspace:*",
+    "@fork/protocol-moonwell": "workspace:*",
     "@fork/shared": "workspace:*",
     "prettier": "^3.7.4",
     "tsx": "^4.20.5",

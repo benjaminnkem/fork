@@ -41,6 +41,8 @@ pnpm dev
 | `pnpm verify:contracts` | onchain bytecode check of the pinned registry |
 | `pnpm chain:smoke` | live Base + Ethereum head + hash anchors |
 | `pnpm test:chain` | real-RPC integration tests (requires `.env`) |
+| `pnpm moonwell:wallet <0x…>` | read real Moonwell Core positions/risk on Base |
+| `pnpm governance:sync` | ingest Ethereum Moonwell proposals and decode Base CF effects |
 
 API health: `http://localhost:4000/health/live`  
 Web: `http://localhost:3000`

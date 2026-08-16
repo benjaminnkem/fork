@@ -12,8 +12,10 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fork/blockchain": "workspace:*",
     "@fork/config": "workspace:*",
     "@fork/observability": "workspace:*",
+    "@fork/protocol-moonwell": "workspace:*",
     "@fork/shared": "workspace:*"
   },
   "devDependencies": {

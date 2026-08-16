@@ -20,14 +20,19 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@fork/config": "workspace:*",
     "@types/node": "^22.15.3",
     "eslint": "^9.39.1",
     "typescript": "5.9.2",
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@fork/shared": "workspace:*",
     "@fork/abis": "workspace:*",
-    "@fork/protocol-core": "workspace:*"
+    "@fork/blockchain": "workspace:*",
+    "@fork/governance-core": "workspace:*",
+    "@fork/protocol-core": "workspace:*",
+    "@fork/risk-engine": "workspace:*",
+    "@fork/shared": "workspace:*",
+    "viem": "^2.55.16"
   }
 }

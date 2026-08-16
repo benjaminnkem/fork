@@ -14,6 +14,12 @@ importers:
       '@fork/config':
         specifier: workspace:*
         version: link:packages/config
+      '@fork/governance-core':
+        specifier: workspace:*
+        version: link:packages/governance-core
+      '@fork/protocol-moonwell':
+        specifier: workspace:*
+        version: link:packages/protocol-moonwell
       '@fork/shared':
         specifier: workspace:*
         version: link:packages/shared
@@ -87,12 +93,18 @@ importers:
 
   apps/indexer:
     dependencies:
+      '@fork/blockchain':
+        specifier: workspace:*
+        version: link:../../packages/blockchain
       '@fork/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@fork/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      '@fork/protocol-moonwell':
+        specifier: workspace:*
+        version: link:../../packages/protocol-moonwell
       '@fork/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -191,6 +203,10 @@ importers:
         version: 4.1.10(@types/node@22.15.3)(vite@8.2.1(@types/node@22.15.3)(esbuild@0.28.2)(tsx@4.23.12))
 
   packages/abis:
+    dependencies:
+      viem:
+        specifier: ^2.55.16
+        version: 2.55.16(typescript@5.9.2)(zod@4.4.3)
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -417,13 +433,28 @@ importers:
       '@fork/abis':
         specifier: workspace:*
         version: link:../abis
+      '@fork/blockchain':
+        specifier: workspace:*
+        version: link:../blockchain
+      '@fork/governance-core':
+        specifier: workspace:*
+        version: link:../governance-core
       '@fork/protocol-core':
         specifier: workspace:*
         version: link:../protocol-core
+      '@fork/risk-engine':
+        specifier: workspace:*
+        version: link:../risk-engine
       '@fork/shared':
         specifier: workspace:*
         version: link:../shared
+      viem:
+        specifier: ^2.55.16
+        version: 2.55.16(typescript@5.9.2)(zod@4.4.3)
     devDependencies:
+      '@fork/config':
+        specifier: workspace:*
+        version: link:../config
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
