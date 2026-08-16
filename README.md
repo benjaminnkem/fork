@@ -1,159 +1,50 @@
-# Turborepo starter
+# Fork
 
-This Turborepo starter is maintained by the Turborepo core team.
+Autonomous DeFi pre-execution risk agent. It applies a known protocol change to a pinned Base mainnet fork, measures the user's Moonwell position from the real contracts, and only surfaces rescue actions the EVM verifies.
 
-## Using this example
+> The model proposes. The EVM proves.
 
-Run the following command:
+V1 scope: Moonwell Core on Base Mainnet. Moonwell is adapter #1, not the product.
 
-```sh
-npx create-turbo@latest
+This repository is in **Phase 0**: verified protocol research plus a compilable monorepo skeleton. It does not yet read wallets, index governance, or spawn Anvil.
+
+## Prerequisites
+
+- Node.js 20+
+- pnpm 9 (`corepack enable`)
+- Docker + Docker Compose (Mongo/Redis, unused by the skeleton)
+- Foundry (`anvil`) for later simulation phases
+- Archive-capable Base RPC and an Ethereum RPC for later phases
+- Groq API key for later agent phases
+
+## Setup
+
+```bash
+pnpm install
+cp .env.example .env
+docker compose up -d mongodb redis
+pnpm verify:contracts
+pnpm dev
 ```
 
-## What's inside?
+`pnpm verify:contracts` hits public RPCs unless you set `BASE_RPC_URL` / `ETHEREUM_RPC_URL`.
 
-This Turborepo includes the following packages/apps:
+## Commands
 
-### Apps and Packages
+| Command | What |
+|---|---|
+| `pnpm dev` | web + api + indexer + simulator skeletons |
+| `pnpm lint` | ESLint |
+| `pnpm check-types` | TypeScript |
+| `pnpm test` | Vitest |
+| `pnpm build` | all apps/packages |
+| `pnpm verify:contracts` | onchain bytecode check of the pinned registry |
+| `pnpm chain:smoke` | live Base + Ethereum head + hash anchors |
+| `pnpm test:chain` | real-RPC integration tests (requires `.env`) |
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+API health: `http://localhost:4000/health/live`  
+Web: `http://localhost:3000`
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Docs
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Start with `docs/README.md`, then `docs/PRD.md` and `docs/TECHNICAL_SPECIFICATION.md`. Phase 0 research lives in `docs/PROTOCOL_RESEARCH.md` and `docs/CONTRACT_REGISTRY.md`.

@@ -3,18 +3,28 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=web --filter=api --filter=indexer --filter=simulator",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test",
+    "test:chain": "pnpm --filter @fork/blockchain exec vitest run src/rpc.integration.test.ts",
+    "verify:contracts": "tsx scripts/verify-contracts.ts",
+    "chain:base:smoke": "tsx scripts/chain-smoke.ts --chain=base",
+    "chain:ethereum:smoke": "tsx scripts/chain-smoke.ts --chain=ethereum",
+    "chain:smoke": "tsx scripts/chain-smoke.ts"
   },
   "devDependencies": {
+    "@fork/blockchain": "workspace:*",
+    "@fork/config": "workspace:*",
+    "@fork/shared": "workspace:*",
     "prettier": "^3.7.4",
+    "tsx": "^4.20.5",
     "turbo": "^2.10.10",
     "typescript": "5.9.2"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

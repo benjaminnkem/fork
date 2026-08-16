@@ -1,0 +1,131 @@
+{
+  "registryVersion": "moonwell-core-2026-08-16",
+  "researchedAt": "2026-08-16",
+  "sources": [
+    "https://docs.moonwell.fi/moonwell/protocol-information/contracts",
+    "https://unpkg.com/@moonwell-fi/moonwell-sdk@0.22.0/_esm/environments/definitions/base/contracts.js",
+    "https://unpkg.com/@moonwell-fi/moonwell-sdk@0.22.0/_esm/environments/definitions/ethereum/contracts.js",
+    "https://forum.moonwell.fi/t/monthly-governance-reports/787/29"
+  ],
+  "bytecodeVerifiedAt": {
+    "date": "2026-08-16",
+    "baseBlockNumber": "50049499",
+    "baseBlockHash": "0x447b2326d630d752cd1c91f5d690b5df28d72e9d6fc92e6c1265b10bbf05ee6f",
+    "ethereumBlockNumber": "25768040",
+    "ethereumBlockHash": "0x96b9638a6fef264f8882e7d5c622a956e3d3a6344618dcc2abb88a784ff704fd",
+    "baseRpc": "https://mainnet.base.org",
+    "ethereumRpc": "https://ethereum.publicnode.com"
+  },
+  "chains": {
+    "8453": {
+      "name": "Base Mainnet",
+      "contracts": {
+        "comptroller": {
+          "address": "0xfBb21d0380beE3312B33c4353c8936a0F13EF26C",
+          "role": "Unitroller proxy for Moonwell Core",
+          "proxyPattern": "compound-unitroller",
+          "implementation": "0x73d8a3bf62aaca6690791e57ebaee4e1d875d8fe",
+          "codeBytes": 1412,
+          "verified": true
+        },
+        "temporalGovernor": {
+          "address": "0x8b621804a7637b781e2BbD58e256a591F2dF7d51",
+          "role": "Base destination governance executor",
+          "proxyPattern": "none-or-unknown",
+          "codeBytes": 8658,
+          "ownerObserved": "0x446342af4f3bcd374276891c6bb3411bf2f8779e",
+          "verified": true
+        },
+        "multichainVoteCollection": {
+          "address": "0xe0278B32c627FF6fFbbe7de6A18Ade145603e949",
+          "role": "Cross-chain vote collection",
+          "proxyPattern": "eip1967",
+          "implementation": "0x9d465d56d235674693a158af40c8d53dde59b0ce",
+          "codeBytes": 2190,
+          "verified": true
+        },
+        "wormholeBridgeAdapter": {
+          "address": "0x734AbBCe07679C9A6B4Fe3bC16325e028fA6DbB7",
+          "role": "xWELL / Wormhole adapter",
+          "proxyPattern": "eip1967",
+          "implementation": "0x2481bfb0dfa54dc155011ef2e90adab9556b8d99",
+          "codeBytes": 2188,
+          "verified": true
+        },
+        "chainlinkOracle": {
+          "address": "0xEC942bE8A8114bFD0396A5052c36027f2cA6a9d0",
+          "role": "Core market oracle",
+          "codeBytes": 4025,
+          "verified": true
+        },
+        "multiRewardDistributor": {
+          "address": "0xe9005b078701e2A0948D2EaC43010D35870Ad9d2",
+          "role": "Reward distributor",
+          "verifiedOnchain": false
+        },
+        "viewsOfficialDocs": {
+          "address": "0x6834770aba6c2028f448e3259ddee4bcb879d459",
+          "role": "Moonwell Views (official docs)",
+          "note": "Conflicts with SDK 0.22.0 views address. Not used for canonical risk."
+        },
+        "viewsSdk": {
+          "address": "0x821Ff3a967b39bcbE8A018a9b1563EAf878bad39",
+          "role": "Moonwell Views (SDK 0.22.0)",
+          "note": "Conflicts with official docs. Not used for canonical risk."
+        }
+      },
+      "markets": {
+        "mDAI": "0x73b06D8d18De422E269645eaCe15400DE7462417",
+        "mUSDC": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+        "mUSDbC": "0x703843C3379b52F9FF486c9f5892218d2a065cC8",
+        "mWETH": "0x628ff693426583D9a7FB391E54366292F509D457",
+        "mcbETH": "0x3bf93770f2d4a794c3d9EBEfBAeBAE2a8f09A5E5",
+        "mwstETH": "0x627Fe393Bc6EdDA28e99AE648fD6fF362514304b",
+        "mrETH": "0xcb1dacd30638ae38f2b94ea64f066045b7d45f44",
+        "mweETH": "0xb8051464C8c92209C92F3a4CD9C73746C4c3CFb3",
+        "mAERO": "0x73902f619CEB9B31FD8EFecf435CbDf89E369Ba6",
+        "mcbBTC": "0xF877ACaFA28c19b96727966690b2f44d35aD5976",
+        "mEURC": "0xb682c840B5F4FC58B20769E691A6fa1305A501a2",
+        "mwrsETH": "0xfC41B49d064Ac646015b459C522820DB9472F4B5",
+        "mWELL": "0xdC7810B47eAAb250De623F0eE07764afa5F71ED1",
+        "mUSDS": "0xb6419c6C2e60c4025D6D06eE4F913ce89425a357",
+        "mtBTC": "0x9A858ebfF1bEb0D3495BB0e2897c1528eD84A218",
+        "mLBTC": "0x10fF57877b79e9bd949B3815220eC87B9fc5D2ee",
+        "mVIRTUAL": "0xdE8Df9d942D78edE3Ca06e60712582F79CFfFC64",
+        "mMORPHO": "0x6308204872bdb7432df97b04b42443c714904f3e",
+        "mcbXRP": "0xb4fb8fed5b3AaA8434f0B19b1b623d977e07e86d",
+        "mMAMO": "0x2F90Bb22eB3979f5FfAd31EA6C3F0792ca66dA32",
+        "mVVV": "0xd64bcb70c613a6d1f4d7d57ba64bb4a0767a9682"
+      }
+    },
+    "1": {
+      "name": "Ethereum Mainnet",
+      "contracts": {
+        "multichainGovernor": {
+          "address": "0x8769B70ac7c93AF0e75de0D69877709B66d75838",
+          "role": "Current primary Moonwell governor after MIP-X58",
+          "proxyPattern": "eip1967",
+          "implementation": "0x78c504b6c0ea2adbf6a58b208c9888f3692db169",
+          "codeBytes": 2190,
+          "implementationCodeBytes": 21764,
+          "verified": true,
+          "note": "Official docs label this Multichain Governor. Forum describes MIP-X58 MultichainGovernorV2. Implementation ABI must be pinned in Phase 3."
+        },
+        "wormholeBridgeAdapter": {
+          "address": "0x734AbBCe07679C9A6B4Fe3bC16325e028fA6DbB7",
+          "role": "xWELL / Wormhole adapter",
+          "proxyPattern": "eip1967",
+          "implementation": "0x826d8ecd5e9ec46a63f1b0a2da7a8929a8590c29",
+          "codeBytes": 2643,
+          "verified": true
+        },
+        "comptroller": {
+          "address": "0xdec80bB934397575594E91970b37baf65f5b21bE",
+          "role": "Ethereum Core Comptroller — not used for V1 user-position protection",
+          "codeBytes": 1391,
+          "verified": true
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,54 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "APP_ENV",
+    "APP_VERSION",
+    "LOG_LEVEL",
+    "API_PORT",
+    "WEB_ORIGIN",
+    "API_PUBLIC_URL",
+    "SESSION_SECRET",
+    "AUTH_NONCE_TTL_SECONDS",
+    "PUBLIC_RATE_LIMIT_TTL_SECONDS",
+    "PUBLIC_RATE_LIMIT_MAX",
+    "MONGODB_URI",
+    "MONGODB_DB_NAME",
+    "REDIS_URL",
+    "BASE_CHAIN_ID",
+    "BASE_RPC_URL",
+    "BASE_FALLBACK_RPC_URL",
+    "ETHEREUM_CHAIN_ID",
+    "ETHEREUM_RPC_URL",
+    "ETHEREUM_FALLBACK_RPC_URL",
+    "MOONWELL_REGISTRY_VERSION",
+    "MOONWELL_ALLOW_REGISTRY_OVERRIDE",
+    "GOVERNANCE_POLL_INTERVAL_MS",
+    "GOVERNANCE_BASE_START_BLOCK",
+    "GOVERNANCE_ETHEREUM_START_BLOCK",
+    "GOVERNANCE_LOG_BLOCK_RANGE",
+    "ANVIL_BINARY",
+    "ANVIL_HOST",
+    "ANVIL_PORT_START",
+    "MAX_PARALLEL_FORKS",
+    "SIMULATION_TIMEOUT_MS",
+    "FORK_START_TIMEOUT_MS",
+    "SIMULATION_RECEIPT_SCHEMA_VERSION",
+    "GROQ_API_KEY",
+    "GROQ_PLANNER_MODEL",
+    "GROQ_FALLBACK_MODEL",
+    "AGENT_MAX_STEPS",
+    "AGENT_TIMEOUT_MS",
+    "AGENT_REASONING_EFFORT",
+    "DEFAULT_MIN_SAFETY_BUFFER_BPS",
+    "SIMULATION_MAX_AGE_SECONDS",
+    "ENABLE_MAINNET_TRANSACTION_PREPARATION",
+    "ENABLE_AUTONOMOUS_MAINNET_EXECUTION",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_BASE_CHAIN_ID",
+    "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -11,6 +59,9 @@
       "dependsOn": ["^lint"]
     },
     "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "test": {
       "dependsOn": ["^check-types"]
     },
     "dev": {
