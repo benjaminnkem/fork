@@ -114,7 +114,16 @@ Comptroller `admin()` is Temporal Governor `0x8b621804a7637b781e2BbD58e256a591F2
 
 Real mwrsETH supplier at the pre-event block (from `alchemy_getAssetTransfers` + `getAccountSnapshot`): `0x9eec3976435a37b0340ecbd966c226a691956b35` (entered as collateral, non-zero liquidity, shortfall 0). Isolated single-market wallet also observed: `0x494c7fdb753c15b69fea2293e1b76567ca94462d`.
 
-## 9. Open Phase 5 questions
+## 9. Phase 6 rescue wallets (block 48025643)
+
+Verified with `balanceOf` + `getAccountSnapshot` + Comptroller pause reads:
+
+- Impact wallet `0x9eec3976435a37b0340ecbd966c226a691956b35`: mwrsETH collateral + USDC debt; USDC/wrsETH wallet balances are 0. Rescue infeasible without minting.
+- Isolated wallet `0x494c7fdb753c15b69fea2293e1b76567ca94462d`: mwrsETH supply+borrow; USDC wallet balance `100236208`. mUSDC mint is not paused. ADD_COLLATERAL candidate.
+- `0x416ec2ca21a38cbcfeacd6a14532b3f348356d23`: EURC debt with EURC wallet balance `489012`. REPAY_DEBT asset exists, but the wallet has no mwrsETH exposure to proposal 176.
+- `mintGuardianPaused(mwrsETH)` is true at the fork block.
+
+## 10. Open later-phase questions
 
 - Exact MultichainGovernorV2 event/ABI surface on implementation `0x78c5…b169`.
 - Temporal Governor trusted-sender set and proposal delay after MIP-X58.

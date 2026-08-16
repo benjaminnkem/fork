@@ -9,6 +9,13 @@
 - `moonwell-contracts-v2` README still describes Moonbeam as the governor source. Ignored in favor of official contracts + MIP-X58 + onchain state.
 - MultichainGovernorV2 implementation ABI is not pinned yet.
 - Temporal Governor owner `0x4463…779e` is observed, not identified.
-- `DEFAULT_MIN_SAFETY_BUFFER_BPS` is intentionally unset.
+- `DEFAULT_MIN_SAFETY_BUFFER_BPS` is intentionally unset. Policy source is `NO_ADDITIONAL_BUFFER` (0 bps) until a product owner sets the env var. A required buffer fails closed because `safetyBufferBps` is not derived from Comptroller liquidity alone.
+- Receipt hashes cover the economic/provenance body only. Anvil-generated post-tx hashes and after-block hashes differ across processes and are stored as run evidence.
+- Mongo schemas exist in `@fork/persistence`. Nest/Mongoose connection, migrations, and index creation at API startup are Phase 8.
+- `pnpm receipt:reproduce` supports the pinned moonwell-176 receipt only.
+- The pinned impact wallet `0x9eec…6b35` has USDC debt but no USDC/wrsETH wallet balance at block 48025643, so both rescues are infeasible there. Assets are not minted.
+- mwrsETH mint and borrow are paused at that block. ADD_COLLATERAL therefore uses another listed market the wallet already holds (USDC on `0x494c…462d`).
+- Derived `safetyBufferBps` is `liquidity * 10000 / oraclePricedBorrows`. Canonical solvency remains Comptroller `getAccountLiquidity`.
+- The Groq agent cannot invent a rescue if both models fail or tools return infeasible. Live agent tests require `RUN_AGENT=1` and a Groq Console API key (`gsk_…`). A non-Groq key fails closed.
 - TypeScript remains 5.9.2 even though npm latest is 7.x.
 - Web UI is a placeholder page with no product data.

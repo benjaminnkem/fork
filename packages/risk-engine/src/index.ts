@@ -1,4 +1,4 @@
-import type { RiskState, UserRiskPolicy } from "@fork/shared";
+import type { RiskState } from "@fork/shared";
 
 export function classifyRisk(liquidityRaw: bigint, shortfallRaw: bigint): RiskState["status"] {
   if (shortfallRaw > 0n) return "SHORTFALL";
@@ -15,7 +15,17 @@ export function classifyComptrollerLiquidity(
   return classifyRisk(liquidityRaw, shortfallRaw);
 }
 
-export function policyPasses(state: Pick<RiskState, "status">, policy: UserRiskPolicy): boolean {
-  void policy;
-  return state.status !== "SHORTFALL";
-}
+export {
+  createUserRiskPolicy,
+  evaluatePolicy,
+  policyPasses,
+  type CreateUserRiskPolicyInput,
+  type PolicyEvaluation,
+} from "./policy.js";
+export {
+  assessMaterialRisk,
+  liquidityDropBps,
+  type MaterialRiskAssessment,
+  type MaterialRiskClassification,
+} from "./material.js";
+export { computeSafetyBufferBps } from "./buffer.js";

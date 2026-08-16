@@ -29,11 +29,11 @@ Keep this file synchronized with `.env.example`.
 | `GOVERNANCE_*_START_BLOCK` | later | indexer | no | backfill cursors |
 | `GOVERNANCE_LOG_BLOCK_RANGE` | no | indexer | no | eth_getLogs window |
 | `ANVIL_*` / `MAX_PARALLEL_FORKS` / `SIMULATION_*` | Phase 4 | simulator | no | fork controls; `FORK_START_TIMEOUT_MS` default 180000 |
-| `GROQ_API_KEY` | Phase 7 / live agent tests | agent | yes | Groq |
+| `GROQ_API_KEY` | Phase 7 / live agent tests | agent | yes | Groq Console key (`gsk_…`) |
 | `GROQ_PLANNER_MODEL` | no | agent | no | default `openai/gpt-oss-120b` |
 | `GROQ_FALLBACK_MODEL` | no | agent | no | default `openai/gpt-oss-20b` |
-| `AGENT_*` | no | agent | no | step/time/reasoning limits |
-| `DEFAULT_MIN_SAFETY_BUFFER_BPS` | product decision | risk | no | **do not invent**; unset until approved |
+| `AGENT_*` | no | agent | no | step/time/token/invalid-call limits. `AGENT_INCLUDE_REASONING` stays false in production |
+| `DEFAULT_MIN_SAFETY_BUFFER_BPS` | product decision | risk | no | **do not invent**; unset until approved. Receipts record `NO_ADDITIONAL_BUFFER` when empty |
 | `SIMULATION_MAX_AGE_SECONDS` | no | simulation | no | freshness |
 | `ENABLE_MAINNET_TRANSACTION_PREPARATION` | no, false | execution | no | Phase 10 |
 | `ENABLE_AUTONOMOUS_MAINNET_EXECUTION` | must stay false | execution | no | V1 forbids this |

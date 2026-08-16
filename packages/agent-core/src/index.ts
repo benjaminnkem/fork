@@ -1,20 +1,8 @@
-import { ForkError } from "@fork/shared";
-
-export const GROQ_PLANNER_MODEL = "openai/gpt-oss-120b";
-export const GROQ_FALLBACK_MODEL = "openai/gpt-oss-20b";
-
-export const ALLOWED_TOOL_NAMES = [
-  "get_wallet_positions",
-  "get_change_details",
-  "get_exposure",
-  "run_impact_simulation",
-  "list_available_rescue_assets",
-  "optimize_repayment",
-  "optimize_add_collateral",
-  "get_verified_strategies",
-  "compare_verified_strategies",
-] as const;
-
-export function runAgent(): never {
-  throw new ForkError("NOT_IMPLEMENTED", "Groq agent loop is Phase 7");
-}
+export { ALLOWED_TOOL_NAMES, GROQ_FALLBACK_MODEL, GROQ_PLANNER_MODEL } from "./names.js";
+export { GroqModelProvider } from "./groq.js";
+export { ScriptedModelProvider, type ModelProvider } from "./provider.js";
+export { authorizeToolCall } from "./policy.js";
+export { createAgentSession, type AgentSession } from "./session.js";
+export { runAgent, type AgentRequest, type AgentResult } from "./loop.js";
+export { sanitizeUserText, type AgentTraceEvent } from "./trace.js";
+export { TOOL_SPECS } from "./tools.js";

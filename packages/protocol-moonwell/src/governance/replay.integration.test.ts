@@ -23,6 +23,11 @@ describe.skipIf(!live)("proposal 176 Anvil replay", () => {
       expect(receipt.calls[0]?.success).toBe(true);
       expect(receipt.after.risk.liquidityRaw < receipt.before.risk.liquidityRaw).toBe(true);
       expect(receipt.after.risk.shortfallRaw >= receipt.before.risk.shortfallRaw).toBe(true);
+      expect(receipt.exposure.relevant).toBe(true);
+      expect(receipt.exposure.severityHint).toBe("HIGH");
+      expect(receipt.materialRisk.classification).toBe("LIQUIDITY_REDUCED");
+      expect(receipt.policy.policyVersion).toBe("1");
+      expect(receipt.provenance.comptrollerCodeHash?.startsWith("0x")).toBe(true);
     },
   );
 });

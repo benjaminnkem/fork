@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@fork/blockchain": "workspace:*",
+    "@fork/risk-engine": "workspace:*",
     "@fork/shared": "workspace:*",
     "viem": "^2.55.16"
   }

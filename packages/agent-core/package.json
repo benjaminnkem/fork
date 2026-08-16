@@ -26,6 +26,14 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@fork/shared": "workspace:*"
+    "@fork/blockchain": "workspace:*",
+    "@fork/config": "workspace:*",
+    "@fork/protocol-moonwell": "workspace:*",
+    "@fork/risk-engine": "workspace:*",
+    "@fork/shared": "workspace:*",
+    "@fork/strategy-engine": "workspace:*",
+    "groq-sdk": "1.5.0",
+    "viem": "^2.55.16",
+    "zod": "^4.4.3"
   }
 }

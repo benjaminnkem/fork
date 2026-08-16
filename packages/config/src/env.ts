@@ -51,6 +51,12 @@ const envSchema = z.object({
   AGENT_MAX_STEPS: z.coerce.number().int().positive().default(10),
   AGENT_TIMEOUT_MS: z.coerce.number().int().positive().default(90_000),
   AGENT_REASONING_EFFORT: z.enum(["low", "medium", "high"]).default("medium"),
+  AGENT_MAX_COMPLETION_TOKENS: z.coerce.number().int().positive().default(2048),
+  AGENT_MAX_INVALID_CALLS: z.coerce.number().int().positive().default(3),
+  AGENT_INCLUDE_REASONING: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
 
   DEFAULT_MIN_SAFETY_BUFFER_BPS: z.coerce.number().int().nonnegative().optional(),
   SIMULATION_MAX_AGE_SECONDS: z.coerce.number().int().positive().default(300),

@@ -121,14 +121,31 @@ export interface ProtocolChange {
 
 export type OptimizationGoal = "MIN_CAPITAL" | "MAX_SAFETY" | "MIN_TX_COUNT";
 
+export type MinSafetyBufferBpsSource = "ENV" | "EXPLICIT" | "NO_ADDITIONAL_BUFFER";
+
 export interface UserRiskPolicy {
+  policyVersion: string;
   minSafetyBufferBps: number;
+  minSafetyBufferBpsSource: MinSafetyBufferBpsSource;
   optimizationGoal: OptimizationGoal;
   allowRepayDebt: boolean;
   allowAddCollateral: boolean;
   maxRepayRawByAsset?: Record<string, string>;
   maxCollateralRawByAsset?: Record<string, string>;
 }
+
+export type ExposureSeverityHint = "NONE" | "LOW" | "MEDIUM" | "HIGH";
+
+export interface ExposureResult {
+  relevant: boolean;
+  severityHint: ExposureSeverityHint;
+  matchedMarkets: Address[];
+  matchedAssets: Address[];
+  rationaleCodes: string[];
+  evidence: EvidenceRef[];
+}
+
+export const RISK_POLICY_SCHEMA_VERSION = "1";
 
 export type StrategyType = "REPAY_DEBT" | "ADD_COLLATERAL";
 

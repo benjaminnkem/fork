@@ -4,6 +4,8 @@ export {
   moonwellComptrollerAbi,
   moonwellMTokenAbi,
   erc20MetadataAbi,
+  erc20Abi,
+  moonwellOracleAbi,
   MOONWELL_ABI_PROVENANCE,
 } from "./moonwell.js";
 export {

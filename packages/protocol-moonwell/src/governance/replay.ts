@@ -1,31 +1,34 @@
-import {
-  getRequiredContract,
-  moonwellComptrollerAbi,
-  moonwellSetCollateralFactorAbi,
-} from "@fork/abis";
+import { moonwellSetCollateralFactorAbi } from "@fork/abis";
 import type { ForkChainClient } from "@fork/blockchain";
-import { loadConfig } from "@fork/config";
+import { assessMaterialRisk, evaluatePolicy } from "@fork/risk-engine";
 import {
   impersonateAndFund,
   sendImpersonatedCall,
-  startAnvilFork,
-  stopAnvil,
+  SIMULATION_RECEIPT_SCHEMA_VERSION,
+  type CanonicalGovernanceCall,
   type SimulationReceipt,
 } from "@fork/simulation-core";
-import { BASE_CHAIN_ID, ForkError, type Address, type BlockAnchor } from "@fork/shared";
-import { getAddress } from "viem";
-import { createMoonwellAdapter } from "../adapter.js";
-import { decodeSetCollateralFactor } from "./decode.js";
+import { BASE_CHAIN_ID, ForkError, type Address, type BlockAnchor, type Hex } from "@fork/shared";
+import { keccak256 } from "viem";
 import { PINNED_BASE_CF_PROPOSAL_ID } from "./normalize.js";
-import { readGovernorProposal } from "./sync.js";
+import { openPinnedReplaySession, readPinnedMarketFactor } from "./pinned-fork.js";
 
-export const PINNED_REPLAY_FORK_BLOCK = 48025643n;
-export const PINNED_REPLAY_FORK_HASH =
-  "0x587e0cab88e0fd0929f24e36240bd4943e8162cab4a42bb1064d48936fa2e8bc" as const;
-export const PINNED_REPLAY_WALLET = "0x9eec3976435a37b0340ecbd966c226a691956b35" as Address;
+export {
+  PINNED_ADD_COLLATERAL_WALLET,
+  PINNED_REPAY_WALLET,
+  PINNED_REPLAY_FORK_BLOCK,
+  PINNED_REPLAY_FORK_HASH,
+  PINNED_REPLAY_WALLET,
+} from "./pinned-fork.js";
 
-function asAddress(value: string): Address {
-  return getAddress(value) as Address;
+async function codeHashAt(
+  client: { getCode: (args: { address: Address; blockNumber?: bigint }) => Promise<Hex | undefined> },
+  address: Address,
+  blockNumber: bigint,
+): Promise<Hex | null> {
+  const code = await client.getCode({ address, blockNumber });
+  if (!code || code === "0x") return null;
+  return keccak256(code);
 }
 
 export async function replayPinnedCollateralFactor(input: {
@@ -33,57 +36,30 @@ export async function replayPinnedCollateralFactor(input: {
   baseRpcUrl: string;
   wallet?: Address;
 }): Promise<SimulationReceipt> {
-  const config = loadConfig();
-  const wallet = input.wallet ?? PINNED_REPLAY_WALLET;
-  const proposal = await readGovernorProposal(input.ethereum, BigInt(PINNED_BASE_CF_PROPOSAL_ID));
-  const temporalGovernor = asAddress(getRequiredContract(BASE_CHAIN_ID, "temporalGovernor").address);
-  const comptroller = asAddress(getRequiredContract(BASE_CHAIN_ID, "comptroller").address);
-
-  const cfCall = proposal.decoded.destinationBatches
-    .filter((batch) => batch.temporalGovernor.toLowerCase() === temporalGovernor.toLowerCase())
-    .flatMap((batch) => batch.calls)
-    .find((call) => call.decoded?.functionName === "_setCollateralFactor");
-  if (!cfCall) {
-    throw new ForkError("UNSUPPORTED_PROTOCOL_CHANGE", "Pinned proposal has no Base CF destination call");
-  }
-  decodeSetCollateralFactor(cfCall.calldata);
-
-  const anvil = await startAnvilFork({
-    binary: config.ANVIL_BINARY,
-    host: config.ANVIL_HOST,
-    startPort: config.ANVIL_PORT_START,
-    forkUrl: input.baseRpcUrl,
-    forkBlockNumber: PINNED_REPLAY_FORK_BLOCK,
-    expectedBlockHash: PINNED_REPLAY_FORK_HASH,
-    startTimeoutMs: Math.max(config.FORK_START_TIMEOUT_MS, 180_000),
-  });
-
+  const session = await openPinnedReplaySession(input);
   try {
-    const forkClient: ForkChainClient = {
-      chainId: BASE_CHAIN_ID,
-      providerId: "anvil-fork",
-      fallbackConfigured: false,
-      client: anvil.client as unknown as ForkChainClient["client"],
-    };
-    const adapter = createMoonwellAdapter(forkClient);
-    const anchor: BlockAnchor = {
-      chainId: BASE_CHAIN_ID,
-      blockNumber: PINNED_REPLAY_FORK_BLOCK,
-      blockHash: PINNED_REPLAY_FORK_HASH,
-      timestamp: Number((await anvil.client.getBlock({ blockNumber: PINNED_REPLAY_FORK_BLOCK })).timestamp),
-      finality: "historical",
-      rpcProviderId: "anvil-fork",
-    };
+    const { anvil, adapter, wallet, anchor, change, cfCall, temporalGovernor, comptroller, market } =
+      session;
+    const targetCalls: CanonicalGovernanceCall[] = change.targetCalls.map((call) => ({
+      destinationChainId: call.destinationChainId,
+      target: call.target,
+      valueRaw: call.valueRaw.toString(),
+      calldata: call.calldata,
+      selector: call.selector,
+      decoded: call.decoded,
+    }));
 
-    const market = asAddress(decodeSetCollateralFactor(cfCall.calldata).market);
-    const beforeMarket = (await anvil.client.readContract({
-      address: comptroller,
-      abi: moonwellComptrollerAbi,
-      functionName: "markets",
-      args: [market],
-    })) as readonly [boolean, bigint];
-    const beforeRisk = await adapter.getRiskState(wallet, anchor);
+    const [beforeMarket, beforeRisk, positions, comptrollerCodeHash, marketCodeHash, temporalGovernorCodeHash] =
+      await Promise.all([
+        readPinnedMarketFactor(session),
+        adapter.getRiskState(wallet, anchor),
+        adapter.getUserPositions(wallet, anchor),
+        codeHashAt(anvil.client, comptroller, anchor.blockNumber),
+        codeHashAt(anvil.client, market, anchor.blockNumber),
+        codeHashAt(anvil.client, temporalGovernor, anchor.blockNumber),
+      ]);
 
+    const exposure = await adapter.matchExposure(positions, change);
     const impersonation = await impersonateAndFund(
       anvil,
       temporalGovernor,
@@ -100,12 +76,7 @@ export async function replayPinnedCollateralFactor(input: {
       throw new ForkError("CHANGE_REPLAY_REVERTED", call.error ?? "CF replay transaction failed");
     }
 
-    const afterMarket = (await anvil.client.readContract({
-      address: comptroller,
-      abi: moonwellComptrollerAbi,
-      functionName: "markets",
-      args: [market],
-    })) as readonly [boolean, bigint];
+    const afterMarket = await readPinnedMarketFactor(session);
     const latest = await anvil.client.getBlock({ blockTag: "latest" });
     if (!latest.hash) {
       throw new ForkError("RPC_INCONSISTENT_STATE", "Anvil latest block is missing a hash");
@@ -119,16 +90,24 @@ export async function replayPinnedCollateralFactor(input: {
       rpcProviderId: "anvil-fork",
     };
     const afterRisk = await adapter.getRiskState(wallet, afterAnchor);
+    const materialRisk = assessMaterialRisk(beforeRisk, afterRisk);
+    const policyEvaluation = evaluatePolicy(afterRisk, session.policy);
 
     return {
-      receiptSchemaVersion: "1",
+      receiptSchemaVersion: SIMULATION_RECEIPT_SCHEMA_VERSION,
+      engineVersion: session.config.APP_VERSION,
       replayGrade: "DESTINATION_EFFECT_REPLAY",
       proposalId: PINNED_BASE_CF_PROPOSAL_ID,
+      changeId: change.id,
       wallet,
       chainId: BASE_CHAIN_ID,
       fork: anchor,
+      policy: session.policy,
+      policyEvaluation,
+      exposure,
       impersonations: [impersonation],
       timeJumps: [],
+      targetCalls,
       calls: [call],
       before: {
         collateralFactorMantissa: beforeMarket[1].toString(),
@@ -139,9 +118,49 @@ export async function replayPinnedCollateralFactor(input: {
         risk: afterRisk,
       },
       liquidityDeltaRaw: (afterRisk.liquidityRaw - beforeRisk.liquidityRaw).toString(),
+      materialRisk,
+      provenance: {
+        comptroller,
+        temporalGovernor,
+        market,
+        comptrollerCodeHash,
+        marketCodeHash,
+        temporalGovernorCodeHash,
+      },
+      runEvidence: {
+        simulatedTxHashes: [call.hash ?? null],
+        afterBlockNumber: latest.number.toString(),
+        afterBlockHash: latest.hash,
+        completedAt: new Date().toISOString(),
+      },
+      evidence: [
+        {
+          type: "BLOCK",
+          chainId: BASE_CHAIN_ID,
+          blockNumber: anchor.blockNumber.toString(),
+          blockHash: anchor.blockHash,
+        },
+        {
+          type: "CONTRACT_CALL",
+          chainId: BASE_CHAIN_ID,
+          blockNumber: anchor.blockNumber.toString(),
+          blockHash: anchor.blockHash,
+          address: comptroller,
+          method: "getAccountLiquidity",
+        },
+        {
+          type: "SIMULATED_TRANSACTION",
+          chainId: BASE_CHAIN_ID,
+          txHash: call.hash,
+          address: cfCall.target,
+          method: "_setCollateralFactor",
+        },
+        ...change.evidence,
+        ...exposure.evidence,
+      ],
     };
   } finally {
-    await stopAnvil(anvil);
+    await session.close();
   }
 }
 

@@ -17,6 +17,21 @@ export interface SimulatedCallRecord {
   error?: string;
 }
 
+export async function impersonateForGas(
+  instance: AnvilInstance,
+  account: Address,
+  reason: string,
+  minWei: bigint = parseEther("1"),
+): Promise<ImpersonationRecord> {
+  await instance.client.impersonateAccount({ address: account });
+  const current = await instance.client.getBalance({ address: account });
+  if (current >= minWei) {
+    return { account, reason, fundedWei: "0" };
+  }
+  await instance.client.setBalance({ address: account, value: minWei });
+  return { account, reason, fundedWei: minWei.toString() };
+}
+
 export async function impersonateAndFund(
   instance: AnvilInstance,
   account: Address,

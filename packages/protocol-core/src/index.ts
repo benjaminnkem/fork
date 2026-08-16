@@ -1,12 +1,13 @@
-import type { Address, BlockAnchor, ProtocolChange, ProtocolPosition, RiskState } from "@fork/shared";
+import type {
+  Address,
+  BlockAnchor,
+  ExposureResult,
+  ProtocolChange,
+  ProtocolPosition,
+  RiskState,
+} from "@fork/shared";
 
-export interface ExposureResult {
-  relevant: boolean;
-  severityHint: "NONE" | "LOW" | "MEDIUM" | "HIGH";
-  matchedMarkets: Address[];
-  matchedAssets: Address[];
-  rationaleCodes: string[];
-}
+export type { ExposureResult };
 
 export interface ProtocolAdapter {
   readonly protocolId: string;

@@ -22,6 +22,11 @@ export type AnvilClient = {
   }) => Promise<Hex>;
   waitForTransactionReceipt: (args: { hash: Hex }) => Promise<{ status: "success" | "reverted" }>;
   readContract: (args: object) => Promise<unknown>;
+  getCode: (args: { address: Hex; blockNumber?: bigint }) => Promise<Hex | undefined>;
+  getBalance: (args: { address: Hex }) => Promise<bigint>;
+  snapshot: () => Promise<Hex>;
+  revert: (args: { id: Hex }) => Promise<void>;
+  call: (args: { account?: Hex; to: Hex; data: Hex }) => Promise<{ data?: Hex }>;
 };
 
 export interface AnvilInstance {

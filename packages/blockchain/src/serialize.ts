@@ -28,3 +28,23 @@ export function toJsonSafe(value: unknown): unknown {
   }
   return value;
 }
+
+function sortJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(sortJsonValue);
+  }
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      const entry = (value as Record<string, unknown>)[key];
+      if (entry === undefined) continue;
+      out[key] = sortJsonValue(entry);
+    }
+    return out;
+  }
+  return value;
+}
+
+export function canonicalizeJson(value: unknown): string {
+  return JSON.stringify(sortJsonValue(toJsonSafe(value)));
+}

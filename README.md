@@ -44,6 +44,9 @@ pnpm dev
 | `pnpm moonwell:wallet <0x…>` | read real Moonwell Core positions/risk on Base |
 | `pnpm governance:sync` | ingest Ethereum Moonwell proposals and decode Base CF effects |
 | `pnpm fork:replay moonwell-176` | Anvil-fork proposal 176 CF change and print a proof receipt |
+| `pnpm receipt:reproduce [file]` | re-run the stored receipt and compare economic fields |
+| `pnpm fork:strategies moonwell-176 [wallet]` | compare REPAY_DEBT and ADD_COLLATERAL on a real fork |
+| `pnpm fork:agent moonwell-176 [wallet]` | Groq agent over the real simulation tools |
 
 API health: `http://localhost:4000/health/live`  
 Web: `http://localhost:3000`

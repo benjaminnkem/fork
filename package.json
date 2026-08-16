@@ -15,9 +15,13 @@
     "chain:smoke": "tsx scripts/chain-smoke.ts",
     "moonwell:wallet": "tsx scripts/moonwell-wallet.ts",
     "governance:sync": "tsx scripts/governance-sync.ts",
-    "fork:replay": "tsx scripts/fork-replay.ts"
+    "fork:replay": "tsx scripts/fork-replay.ts",
+    "receipt:reproduce": "tsx scripts/reproduce-receipt.ts",
+    "fork:strategies": "tsx scripts/fork-strategies.ts",
+    "fork:agent": "tsx scripts/fork-agent.ts"
   },
   "devDependencies": {
+    "@fork/agent-core": "workspace:*",
     "@fork/blockchain": "workspace:*",
     "@fork/config": "workspace:*",
     "@fork/governance-core": "workspace:*",

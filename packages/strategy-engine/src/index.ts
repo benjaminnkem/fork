@@ -1,8 +1,19 @@
-import { ForkError, type StrategyType } from "@fork/shared";
+import type { StrategyType } from "@fork/shared";
 
 export const V1_STRATEGY_TYPES: StrategyType[] = ["REPAY_DEBT", "ADD_COLLATERAL"];
 
-export function optimizeStrategy(type: StrategyType): never {
-  void type;
-  throw new ForkError("NOT_IMPLEMENTED", "Deterministic rescue search is Phase 6");
-}
+export {
+  ALLOWLIST_ENTER_MARKETS,
+  ALLOWLIST_ERC20_APPROVE_EXACT,
+  ALLOWLIST_ERC20_APPROVE_RESET,
+  ALLOWLIST_MTOKEN_MINT,
+  ALLOWLIST_MTOKEN_REPAY_BORROW,
+  type PlannedCall,
+  type StrategyBranchEvidence,
+  type StrategyFeasibility,
+  type StrategySearchResult,
+  type StrategyStatus,
+  type TransactionPlan,
+} from "./types.js";
+export { assertPositiveAmount, minBound, parsePolicyMax } from "./amounts.js";
+export { findMinimumPassingAmount, type BinarySearchInput, type BinarySearchOutput } from "./search.js";

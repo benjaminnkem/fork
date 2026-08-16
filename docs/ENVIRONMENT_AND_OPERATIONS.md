@@ -179,6 +179,9 @@ Exact scripts must be documented by Codex after implementation.
 4. `pnpm moonwell:wallet <address>`
 5. `pnpm governance:sync --once`
 6. `pnpm fork:replay <real-scenario-slug>`
+7. `pnpm receipt:reproduce .data/replay-moonwell-176.json`
+8. `pnpm fork:strategies moonwell-176 --force-search-buffer`
+9. `pnpm fork:agent moonwell-176`
 7. start API/worker/web;
 8. run Playwright E2E.
 

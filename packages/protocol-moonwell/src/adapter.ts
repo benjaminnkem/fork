@@ -21,6 +21,7 @@ import {
   type RiskState,
 } from "@fork/shared";
 import { getAddress } from "viem";
+import { matchMoonwellExposure } from "./exposure.js";
 import { hasOpenPosition, underlyingFromSnapshot } from "./snapshot.js";
 
 export interface MoonwellMarket {
@@ -294,9 +295,7 @@ export class MoonwellAdapter implements ProtocolAdapter {
     positions: ProtocolPosition[],
     change: ProtocolChange,
   ): Promise<ExposureResult> {
-    void positions;
-    void change;
-    throw new ForkError("NOT_IMPLEMENTED", "Exposure matching is Phase 5");
+    return matchMoonwellExposure(positions, change);
   }
 }
 

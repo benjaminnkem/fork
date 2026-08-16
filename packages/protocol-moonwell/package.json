@@ -34,6 +34,7 @@
     "@fork/risk-engine": "workspace:*",
     "@fork/shared": "workspace:*",
     "@fork/simulation-core": "workspace:*",
+    "@fork/strategy-engine": "workspace:*",
     "viem": "^2.55.16"
   }
 }

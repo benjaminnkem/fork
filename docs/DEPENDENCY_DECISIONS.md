@@ -19,9 +19,9 @@ Recorded 2026-08-16 during Phase 0. Versions are current stables from npm at boo
 | Redis image | redis:7-alpine | local compose |
 | viem | 2.55.16 | locked for Phase 1; not wired yet |
 | wagmi | 3.7.6 | locked for Phase 9; not installed yet |
-| mongoose | 9.9.2 | locked for Phase 8; not installed yet |
+| mongoose | 9.9.2 | schemas/indexes in `@fork/persistence` (Phase 5). Nest connection/migrations remain Phase 8 |
 | bullmq | 6.1.2 | locked for Phase 8; not installed yet |
-| groq-sdk | 1.5.0 | locked for Phase 7; not installed yet |
+| groq-sdk | 1.5.0 | Groq local tool calling in `@fork/agent-core` (Phase 7) |
 | @moonwell-fi/moonwell-sdk | 0.22.0 | current; used as a research source, not a runtime dep yet |
 | Playwright | 1.62.1 | locked for Phase 9 E2E; not installed yet |
 | Tailwind | 4.3.3 | locked for Phase 9; not installed in the Phase 0 web skeleton |

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseBigint, serializeBigint, toJsonSafe } from "./serialize.js";
+import { canonicalizeJson, parseBigint, serializeBigint, toJsonSafe } from "./serialize.js";
 
 describe("bigint serialization", () => {
   it("round-trips decimal strings and never uses floating point", () => {
@@ -18,5 +18,12 @@ describe("bigint serialization", () => {
       blockNumber: "42",
       nested: ["1"],
     });
+  });
+
+  it("canonicalizes object key order", () => {
+    expect(canonicalizeJson({ b: 1n, a: { d: 2n, c: 3n } })).toBe(
+      canonicalizeJson({ a: { c: 3n, d: 2n }, b: 1n }),
+    );
+    expect(canonicalizeJson({ b: 1n, a: 2n })).toBe('{"a":"2","b":"1"}');
   });
 });

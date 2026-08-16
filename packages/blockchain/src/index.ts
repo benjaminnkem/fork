@@ -25,4 +25,4 @@ export {
 } from "./registry.js";
 export { classifyRpcError, toForkRpcError, type RpcFailureClass } from "./errors.js";
 export { withRpcRetry } from "./retry.js";
-export { serializeBigint, parseBigint, toJsonSafe } from "./serialize.js";
+export { serializeBigint, parseBigint, toJsonSafe, canonicalizeJson } from "./serialize.js";
