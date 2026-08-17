@@ -50,7 +50,7 @@ const envSchema = z.object({
   GROQ_PLANNER_MODEL: z.string().default("openai/gpt-oss-120b"),
   GROQ_FALLBACK_MODEL: z.string().default("openai/gpt-oss-20b"),
   AGENT_MAX_STEPS: z.coerce.number().int().positive().default(10),
-  AGENT_TIMEOUT_MS: z.coerce.number().int().positive().default(90_000),
+  AGENT_TIMEOUT_MS: z.coerce.number().int().positive().default(180_000),
   AGENT_REASONING_EFFORT: z.enum(["low", "medium", "high"]).default("medium"),
   AGENT_MAX_COMPLETION_TOKENS: z.coerce.number().int().positive().default(2048),
   AGENT_MAX_INVALID_CALLS: z.coerce.number().int().positive().default(3),

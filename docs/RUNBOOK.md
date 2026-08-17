@@ -66,6 +66,6 @@ Mongo schemas live in `@fork/persistence`. Nest/Mongo connect and create indexes
 | Production start refuses | Check `docs/ENVIRONMENT.md`; missing secrets fail closed |
 | Anvil host not localhost in production | Simulator refuses to start |
 
-## Later phases
+## Release gate
 
-Real-chain smoke, fork replay, and Groq checks are not available yet.
+Evidence for the last full live gate is `docs/RELEASE_GATE.md`. Re-run from a clean checkout with archive RPC, Groq, Mongo, Redis, and Anvil before claiming green again.

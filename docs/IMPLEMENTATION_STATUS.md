@@ -1,7 +1,8 @@
 # Implementation status
 
-**Phase:** 13 — Security and resilience hardening  
-**Date:** 2026-08-16
+**Phase:** 14 — Full E2E / release gate  
+**Date:** 2026-08-17  
+**Report:** `docs/RELEASE_GATE.md`
 
 ## Done
 
@@ -43,11 +44,19 @@
 - `GET /api/v1/monitoring` exposes index lag, last tick, reorg flags, and queue age. The UI shows lag and a wallet-level monitor toggle.
 - Public replay manifest `replays/moonwell-176.json` stores identifiers and anchors only. `pnpm replay:verify` / `pnpm receipt:reproduce` recomputes the receipt from archive RPC + Anvil on a fresh checkout. It does not require a previously saved result file.
 - Hardening: Anvil process-group cleanup, case-insensitive fork hashes, impact job schema checks, queue backpressure, 32kb JSON body limit, exact-approval only (no max uint), live bytecode check before prepare, untrusted user/tool data wrapping for Groq, and wallet-switch refusal in the execution UI.
+- Phase 14 release gate executed from this checkout against live Base/Ethereum/Groq/Mongo/Redis/Anvil. No mocked chain or Groq data.
+- `apps/api` now declares `express@5.2.1` so `pnpm --filter api start` resolves the 32kb body-parser import under pnpm isolation.
+- Default `AGENT_TIMEOUT_MS` is 180000. A 90s budget timed out after five successful live tools.
+- `pnpm fork:strategies moonwell-176 <wallet>` no longer treats the wallet as the scenario name.
 
 ## Not done (by design)
 - Email/Telegram notifications are not added.
 - Auto-simulation is limited to the pinned moonwell-176 DESTINATION_EFFECT_REPLAY. Other indexed changes refresh status/exposure only.
 - No mainnet send is performed by the server or by automated tests.
+- Autonomous mainnet execution stays off.
+- `DEFAULT_MIN_SAFETY_BUFFER_BPS` is still unset; product owner must choose it.
+- Phase 15 (final docs/deploy handoff) is not started.
+- No hosted production deployment was exercised. Local `/health/ready` was green. Local `SESSION_SECRET` is still unset; production start refuses without it.
 
 ## Known limitations
 

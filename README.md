@@ -6,16 +6,16 @@ Autonomous DeFi pre-execution risk agent. It applies a known protocol change to 
 
 V1 scope: Moonwell Core on Base Mainnet. Moonwell is adapter #1, not the product.
 
-This repository is in **Phase 13**: security and resilience hardening is in place on top of the reproducible moonwell-176 path. Email/Telegram notifications and a product safety-buffer default remain out of V1.
+This repository is in **Phase 14**: the live release gate is green for the locked V1 scope. See `docs/RELEASE_GATE.md`. Email/Telegram notifications and a product safety-buffer default remain out of V1.
 
 ## Prerequisites
 
 - Node.js 20+
 - pnpm 9 (`corepack enable`)
-- Docker + Docker Compose (Mongo/Redis, unused by the skeleton)
-- Foundry (`anvil`) for later simulation phases
-- Archive-capable Base RPC and an Ethereum RPC for later phases
-- Groq API key for later agent phases
+- Docker + Docker Compose (Mongo/Redis)
+- Foundry (`anvil`) for historical replay and impact simulation
+- Archive-capable Base RPC and an Ethereum RPC
+- Groq API key (`gsk_…`) for `pnpm fork:agent`
 
 ## Setup
 
@@ -57,4 +57,4 @@ Web: `http://localhost:3000`
 
 ## Docs
 
-Start with `docs/README.md`, then `docs/PRD.md` and `docs/TECHNICAL_SPECIFICATION.md`. Phase 0 research lives in `docs/PROTOCOL_RESEARCH.md` and `docs/CONTRACT_REGISTRY.md`.
+Start with `docs/README.md`, then `docs/PRD.md` and `docs/TECHNICAL_SPECIFICATION.md`. Research lives in `docs/PROTOCOL_RESEARCH.md` and `docs/CONTRACT_REGISTRY.md`. The last live release gate is `docs/RELEASE_GATE.md`.

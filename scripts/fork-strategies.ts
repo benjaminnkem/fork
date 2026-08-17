@@ -12,11 +12,11 @@ import { isAddress } from "viem";
 loadRootEnv();
 
 function parseArgs(argv: string[]) {
-  const scenario = argv.find((arg) => !arg.startsWith("--") && arg !== "moonwell-176") ?? "moonwell-176";
   const walletArg = argv.find((arg) => isAddress(arg));
+  const scenarioArg = argv.find((arg) => !arg.startsWith("--") && !isAddress(arg));
   const force = argv.includes("--force-search-buffer");
   return {
-    scenario,
+    scenario: scenarioArg ?? "moonwell-176",
     wallet: (walletArg as Address | undefined) ?? PINNED_ADD_COLLATERAL_WALLET,
     forceSearch: force,
   };

@@ -186,27 +186,29 @@ Automated tests construct and validate allowlisted plans and wallet-auth signatu
 
 ## 9. Release checklist
 
-- [ ] PRD acceptance criteria satisfied.
-- [ ] No mocks/fake external data in acceptance path.
-- [ ] `pnpm install --frozen-lockfile` succeeds.
-- [ ] lint passes.
-- [ ] typecheck passes.
-- [ ] unit tests pass.
-- [ ] local integration passes.
-- [ ] Base real-chain smoke passes.
-- [ ] Ethereum governance smoke passes.
-- [ ] contract registry bytecode verification passes.
-- [ ] historical replay passes from a fresh fork.
-- [ ] receipt reproduction passes.
-- [ ] rescue strategies pass/fail correctly.
-- [ ] live Groq tool-calling acceptance passes.
-- [ ] Playwright E2E passes.
-- [ ] no orphan Anvil processes remain.
-- [ ] no secrets committed.
-- [ ] `.env.example` current.
-- [ ] README/runbook current.
-- [ ] known limitations explicit.
-- [ ] production health/readiness green.
+Last executed 2026-08-17 from commit `45a5acf` plus the Phase 14 checkout fixes. Evidence: `docs/RELEASE_GATE.md`.
+
+- [x] PRD V1 acceptance criteria 1–18 satisfied for the locked scope (Base Moonwell Core + proposal 176 + REPAY_DEBT/ADD_COLLATERAL). Notifications and other protocols remain out of scope.
+- [x] No mocks/fake external data in acceptance path.
+- [x] `pnpm install --frozen-lockfile` succeeds.
+- [x] lint passes.
+- [x] typecheck passes.
+- [x] unit tests pass.
+- [x] local integration passes (Mongo 7 + Redis 7 healthy; API `/health/ready` ok).
+- [x] Base real-chain smoke passes.
+- [x] Ethereum governance smoke passes.
+- [x] contract registry bytecode verification passes (`moonwell-core-2026-08-16`, 8/8).
+- [x] historical replay passes from a fresh fork.
+- [x] receipt reproduction passes (`pnpm replay:verify`).
+- [x] rescue strategies pass/fail correctly.
+- [x] live Groq tool-calling acceptance passes.
+- [x] Playwright E2E passes (including `RUN_WEB_E2E=1`).
+- [x] no orphan Anvil processes remain.
+- [x] no secrets committed.
+- [x] `.env.example` current.
+- [x] README/runbook current.
+- [x] known limitations explicit.
+- [x] local `/health/ready` green. No hosted production deployment was part of this gate.
 
 ## 10. Submission evidence
 

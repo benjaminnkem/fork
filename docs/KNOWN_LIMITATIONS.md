@@ -17,6 +17,7 @@
 - mwrsETH mint and borrow are paused at that block. ADD_COLLATERAL therefore uses another listed market the wallet already holds (USDC on `0x494c…462d`).
 - Derived `safetyBufferBps` is `liquidity * 10000 / oraclePricedBorrows`. Canonical solvency remains Comptroller `getAccountLiquidity`.
 - The Groq agent cannot invent a rescue if both models fail or tools return infeasible. Live agent tests require `RUN_AGENT=1` and a Groq Console API key (`gsk_…`). A non-Groq key fails closed.
+- Default `AGENT_TIMEOUT_MS` is 180000. A 90s budget can expire after a successful Anvil impact tool call before the model writes a final summary.
 - Simulation create/stream requires local Mongo and Redis (`docker compose up -d`). API E2E is gated by `RUN_API_E2E=1`.
 - Wallet auth is a signed nonce bound to `WEB_ORIGIN` and Base 8453. Connecting a wallet is still not ownership until the auth message is signed.
 - Mainnet transaction preparation is off unless `ENABLE_MAINNET_TRANSACTION_PREPARATION=true`. The API never broadcasts. The user must sign each allowlisted call in the wallet. Autonomous execution stays disabled.
@@ -25,7 +26,7 @@
 - TypeScript remains 5.9.2 even though npm latest is 7.x. wagmi 3.7.6 wants `typescript>=5.9.3`; the lock stays on 5.9.2.
 - Playwright live UI E2E requires `RUN_WEB_E2E=1` plus running API, simulator, Mongo, Redis, and archive RPC. Default Playwright covers the static/error paths only.
 - The indexer writes cursors and change status to `.data/governance-store.json` and metrics to `.data/monitoring-metrics.json`. Auto-enqueue of impact jobs requires Mongo, Redis, and `monitoringEnabled` on the wallet. Only proposal 176 is auto-simulated.
-- Destination execution is inferred from live Comptroller `markets()` matching the decoded CF target, not from a Wormhole VAA.
+- Destination execution is inferred from live Comptroller `markets()` matching the decoded CF target, not from a Wormhole VAA. A file-store row can still read `DESTINATION_PENDING` after a later proposal has already moved the live CF (proposal 176 target 0.52e18; live isolated-wallet CF was 0.46e18 after 179).
 - Production still creates Mongo indexes at process start. That is acceptable for V1; do not expose Mongo/Redis publicly.
 - Groq readiness is configuration presence, not a live ping on every `/health/ready` (that would burn rate limits). A Groq outage fails the agent closed; it does not invent numbers.
 - Impact queue inflight is capped at 16. Additional creates return 503 / are skipped by the indexer.

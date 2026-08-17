@@ -34,7 +34,7 @@ Keep this file synchronized with `.env.example`.
 | `GROQ_API_KEY` | Phase 7 / live agent tests | agent | yes | Groq Console key (`gsk_…`) |
 | `GROQ_PLANNER_MODEL` | no | agent | no | default `openai/gpt-oss-120b` |
 | `GROQ_FALLBACK_MODEL` | no | agent | no | default `openai/gpt-oss-20b` |
-| `AGENT_*` | no | agent | no | step/time/token/invalid-call limits. `AGENT_INCLUDE_REASONING` stays false in production |
+| `AGENT_*` | no | agent | no | step/time/token/invalid-call limits. Default `AGENT_TIMEOUT_MS` is 180000 so a 5-tool run that includes Anvil can finish. `AGENT_INCLUDE_REASONING` stays false in production |
 | `DEFAULT_MIN_SAFETY_BUFFER_BPS` | product decision | risk | no | **do not invent**; unset until approved. Receipts record `NO_ADDITIONAL_BUFFER` when empty |
 | `SIMULATION_MAX_AGE_SECONDS` | no | simulation | no | freshness |
 | `ENABLE_MAINNET_TRANSACTION_PREPARATION` | no, false | execution | no | Phase 10: allow preparing signable plans. Server still never broadcasts. |
