@@ -12,7 +12,7 @@
 - `DEFAULT_MIN_SAFETY_BUFFER_BPS` is intentionally unset. Policy source is `NO_ADDITIONAL_BUFFER` (0 bps) until a product owner sets the env var. A required buffer fails closed because `safetyBufferBps` is not derived from Comptroller liquidity alone.
 - Receipt hashes cover the economic/provenance body only. Anvil-generated post-tx hashes and after-block hashes differ across processes and are stored as run evidence.
 - Mongo schemas exist in `@fork/persistence`. Nest/Mongoose connect and create indexes at API/simulator startup.
-- `pnpm receipt:reproduce` supports the pinned moonwell-176 receipt only.
+- `pnpm replay:verify` / `pnpm receipt:reproduce` support the pinned moonwell-176 destination-effect replay only. They recompute from `replays/moonwell-176.json`. Optional comparison to a prior receipt file is extra, not the source of truth.
 - The pinned impact wallet `0x9eec…6b35` has USDC debt but no USDC/wrsETH wallet balance at block 48025643, so both rescues are infeasible there. Assets are not minted.
 - mwrsETH mint and borrow are paused at that block. ADD_COLLATERAL therefore uses another listed market the wallet already holds (USDC on `0x494c…462d`).
 - Derived `safetyBufferBps` is `liquidity * 10000 / oraclePricedBorrows`. Canonical solvency remains Comptroller `getAccountLiquidity`.

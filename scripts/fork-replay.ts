@@ -3,8 +3,13 @@ import { resolve } from "node:path";
 import { createForkClients, requireChainClient, toJsonSafe } from "@fork/blockchain";
 import { loadConfig, loadRootEnv } from "@fork/config";
 import { hashReceipt, simulationIdempotencyKey } from "@fork/simulation-core";
-import { replayPinnedCollateralFactor } from "@fork/protocol-moonwell";
-import { ETHEREUM_CHAIN_ID } from "@fork/shared";
+import {
+  describeReplayHonesty,
+  loadMoonwell176Manifest,
+  replayPinnedCollateralFactor,
+  verifyPinnedReplayAnchors,
+} from "@fork/protocol-moonwell";
+import { BASE_CHAIN_ID, ETHEREUM_CHAIN_ID } from "@fork/shared";
 
 loadRootEnv();
 
@@ -18,10 +23,20 @@ async function main() {
     throw new Error("BASE_RPC_URL is required for archive forking");
   }
   const clients = createForkClients(config);
+  if (!config.ETHEREUM_RPC_URL) {
+    throw new Error("ETHEREUM_RPC_URL is required to verify replay anchors");
+  }
+  const manifest = loadMoonwell176Manifest();
+  await verifyPinnedReplayAnchors({
+    ethereum: requireChainClient(clients, ETHEREUM_CHAIN_ID),
+    base: requireChainClient(clients, BASE_CHAIN_ID),
+    manifest,
+  });
   const receipt = await replayPinnedCollateralFactor({
     ethereum: requireChainClient(clients, ETHEREUM_CHAIN_ID),
     baseRpcUrl: config.BASE_RPC_URL,
   });
+  const honesty = describeReplayHonesty(receipt);
   const receiptHash = hashReceipt(receipt);
   const hashed = {
     ...receipt,
@@ -41,7 +56,7 @@ async function main() {
     resolve(process.cwd(), `.data/receipts/${receiptHash}.json`),
     `${JSON.stringify(toJsonSafe(hashed), null, 2)}\n`,
   );
-  console.log(JSON.stringify(toJsonSafe(hashed), null, 2));
+  console.log(JSON.stringify(toJsonSafe({ ...hashed, honesty }), null, 2));
 }
 
 void main().catch((error: unknown) => {

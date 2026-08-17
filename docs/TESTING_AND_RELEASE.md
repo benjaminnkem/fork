@@ -98,7 +98,7 @@ The release replay must prove its provenance:
 - real historical wallet if feasible;
 - actual recomputation on run.
 
-The replay manifest may store identifiers/anchors but not substitute saved output numbers for simulation.
+The replay manifest may store identifiers/anchors but not substitute saved output numbers for simulation. `replays/moonwell-176.json` is that manifest. `pnpm replay:verify` recomputes. Manual GitHub Action: workflow `replay`.
 
 ## 3. Strategy acceptance
 

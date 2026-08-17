@@ -16,15 +16,18 @@ import {
 import { getAddress } from "viem";
 import { createMoonwellAdapter, type MoonwellAdapter } from "../adapter.js";
 import { decodeSetCollateralFactor } from "./decode.js";
+import { loadMoonwell176Manifest } from "./manifest.js";
 import { normalizeGovernorProposal, PINNED_BASE_CF_PROPOSAL_ID } from "./normalize.js";
 import { readGovernorProposal } from "./sync.js";
 
-export const PINNED_REPLAY_FORK_BLOCK = 48025643n;
-export const PINNED_REPLAY_FORK_HASH =
-  "0x587e0cab88e0fd0929f24e36240bd4943e8162cab4a42bb1064d48936fa2e8bc" as const;
-export const PINNED_REPLAY_WALLET = "0x9eec3976435a37b0340ecbd966c226a691956b35" as Address;
-export const PINNED_ADD_COLLATERAL_WALLET = "0x494c7fdb753c15b69fea2293e1b76567ca94462d" as Address;
-export const PINNED_REPAY_WALLET = "0x416ec2ca21a38cbcfeacd6a14532b3f348356d23" as Address;
+const MANIFEST = loadMoonwell176Manifest();
+
+export const PINNED_REPLAY_FORK_BLOCK = BigInt(MANIFEST.fork.blockNumber);
+export const PINNED_REPLAY_FORK_HASH = MANIFEST.fork.blockHash;
+export const PINNED_REPLAY_WALLET = MANIFEST.wallets.historical.address;
+export const PINNED_ADD_COLLATERAL_WALLET = MANIFEST.wallets.isolatedAddCollateral.address;
+export const PINNED_REPAY_WALLET = MANIFEST.wallets.repaySmoke.address;
+export const PINNED_REPLAY_MANIFEST = MANIFEST;
 
 export interface PinnedReplaySession {
   config: AppConfig;

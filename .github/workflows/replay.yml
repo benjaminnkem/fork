@@ -1,0 +1,30 @@
+name: replay
+
+on:
+  workflow_dispatch:
+
+jobs:
+  moonwell-176:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: pnpm install --frozen-lockfile
+      - name: Reproduce moonwell-176 from committed manifest
+        env:
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          ETHEREUM_RPC_URL: ${{ secrets.ETHEREUM_RPC_URL }}
+          RUN_FORK_REPLAY: "1"
+        run: |
+          if [ -z "$BASE_RPC_URL" ] || [ -z "$ETHEREUM_RPC_URL" ]; then
+            echo "Set repository secrets BASE_RPC_URL and ETHEREUM_RPC_URL to run archive replay."
+            exit 1
+          fi
+          pnpm replay:verify

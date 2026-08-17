@@ -180,7 +180,7 @@ Exact scripts must be documented by Codex after implementation.
 4. `pnpm moonwell:wallet <address>`
 5. `pnpm governance:sync --once`
 6. `pnpm fork:replay <real-scenario-slug>`
-7. `pnpm receipt:reproduce .data/replay-moonwell-176.json`
+7. `pnpm replay:verify` (fresh checkout; optional `pnpm receipt:reproduce .data/replay-moonwell-176.json` to compare a previous run)
 8. `pnpm fork:strategies moonwell-176 --force-search-buffer`
 9. `pnpm fork:agent moonwell-176`
 10. `docker compose up -d` then start API and simulator

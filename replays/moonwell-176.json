@@ -1,0 +1,53 @@
+{
+  "manifestVersion": "1",
+  "slug": "moonwell-176",
+  "replayGrade": "DESTINATION_EFFECT_REPLAY",
+  "proposalId": "176",
+  "changeId": "moonwell:eth:176",
+  "sourceChainId": 1,
+  "destinationChainId": 8453,
+  "fork": {
+    "chainId": 8453,
+    "blockNumber": "48025643",
+    "blockHash": "0x587e0cab88e0fd0929f24e36240bd4943e8162cab4a42bb1064d48936fa2e8bc"
+  },
+  "destinationEffectBlock": {
+    "chainId": 8453,
+    "blockNumber": "48025644",
+    "blockHash": "0x76af174fa79a4cf9cd8a78a57c7bf2776c254ebd39f01ab5576a66ffc777416c"
+  },
+  "contracts": {
+    "ethereumGovernor": "0x8769B70ac7c93AF0e75de0D69877709B66d75838",
+    "temporalGovernor": "0x8b621804a7637b781e2BbD58e256a591F2dF7d51",
+    "comptroller": "0xfBb21d0380beE3312B33c4353c8936a0F13EF26C",
+    "market": "0xfC41B49d064Ac646015b459C522820DB9472F4B5"
+  },
+  "action": {
+    "type": "COLLATERAL_FACTOR_CHANGE",
+    "functionName": "_setCollateralFactor",
+    "beforeCollateralFactorMantissa": "680000000000000000",
+    "afterCollateralFactorMantissa": "520000000000000000"
+  },
+  "wallets": {
+    "historical": {
+      "address": "0x9eec3976435a37b0340ecbd966c226a691956b35",
+      "role": "PINNED_REPLAY_WALLET",
+      "notes": "Real mwrsETH supplier at the fork block. Wallet USDC/wrsETH balances are 0, so rescues are infeasible. Do not mint assets. Liquidity may fall without creating a shortfall."
+    },
+    "isolatedAddCollateral": {
+      "address": "0x494c7fdb753c15b69fea2293e1b76567ca94462d",
+      "role": "PINNED_ADD_COLLATERAL_WALLET",
+      "notes": "Isolated wallet used to exercise ADD_COLLATERAL. Not a substitute historical insolvency case."
+    },
+    "repaySmoke": {
+      "address": "0x416ec2ca21a38cbcfeacd6a14532b3f348356d23",
+      "role": "PINNED_REPAY_WALLET",
+      "notes": "EURC repay smoke wallet. Not exposed to mwrsETH CF 176."
+    }
+  },
+  "sources": [
+    "docs/PROTOCOL_RESEARCH.md",
+    "docs/CONTRACT_REGISTRY.md",
+    "packages/abis/src/registry/moonwell-core-2026-08-16.json"
+  ]
+}

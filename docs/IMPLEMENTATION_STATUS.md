@@ -1,6 +1,6 @@
 # Implementation status
 
-**Phase:** 11 — Continuous monitoring  
+**Phase:** 12 — Hardened moonwell-176 replay  
 **Date:** 2026-08-16
 
 ## Done
@@ -41,6 +41,7 @@
 - The UI shows exact target, method, amount, and spender before the user signs on Base 8453.
 - Indexer poll loop persists Ethereum and Base cursors, detects reorgs, refreshes governor and destination CF status, marks stale/cancelled open simulations, and enqueues the pinned moonwell-176 impact job only for monitored wallets with relevant exposure.
 - `GET /api/v1/monitoring` exposes index lag, last tick, reorg flags, and queue age. The UI shows lag and a wallet-level monitor toggle.
+- Public replay manifest `replays/moonwell-176.json` stores identifiers and anchors only. `pnpm replay:verify` / `pnpm receipt:reproduce` recomputes the receipt from archive RPC + Anvil on a fresh checkout. It does not require a previously saved result file.
 
 ## Not done (by design)
 - Email/Telegram notifications are not added.

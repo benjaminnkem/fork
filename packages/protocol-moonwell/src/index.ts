@@ -26,6 +26,15 @@ export { JsonFileGovernanceStore } from "./governance/file-store.js";
 export { refreshDestinationStatuses, destinationStatusFromFactor, BASE_DESTINATION_SOURCE } from "./governance/destination.js";
 export { refreshIndexedChangeStatuses } from "./governance/refresh.js";
 export {
+  loadMoonwell176Manifest,
+  parseReplayManifest,
+  receiptMatchesManifestAction,
+  findMoonwell176ManifestPath,
+  type ReplayManifest,
+} from "./governance/manifest.js";
+export { verifyPinnedReplayAnchors, type AnchorVerification } from "./governance/anchors.js";
+export { describeReplayHonesty } from "./governance/honesty.js";
+export {
   replayPinnedCollateralFactor,
   PINNED_REPLAY_FORK_BLOCK,
   PINNED_REPLAY_FORK_HASH,

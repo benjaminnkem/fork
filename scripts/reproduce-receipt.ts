@@ -2,57 +2,80 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createForkClients, requireChainClient, toJsonSafe } from "@fork/blockchain";
 import { loadConfig, loadRootEnv } from "@fork/config";
-import { replayPinnedCollateralFactor } from "@fork/protocol-moonwell";
+import {
+  BASE_CHAIN_ID,
+  ETHEREUM_CHAIN_ID,
+  type Address,
+} from "@fork/shared";
+import {
+  describeReplayHonesty,
+  loadMoonwell176Manifest,
+  receiptMatchesManifestAction,
+  replayPinnedCollateralFactor,
+  verifyPinnedReplayAnchors,
+} from "@fork/protocol-moonwell";
 import { compareEconomicReceipts, hashReceipt } from "@fork/simulation-core";
-import { ETHEREUM_CHAIN_ID, type Address } from "@fork/shared";
 
 loadRootEnv();
 
-function isPhase5Receipt(value: unknown): boolean {
+function isReceiptFile(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
   return Boolean(record.exposure && record.materialRisk && record.policy && record.provenance);
 }
 
 async function main() {
-  const file = resolve(process.cwd(), process.argv[2] ?? ".data/replay-moonwell-176.json");
-  if (!existsSync(file)) {
-    throw new Error(`Stored receipt not found: ${file}. Run pnpm fork:replay moonwell-176 first.`);
+  const maybeFile = process.argv[2] ? resolve(process.cwd(), process.argv[2]) : undefined;
+  const stored =
+    maybeFile && existsSync(maybeFile)
+      ? (JSON.parse(readFileSync(maybeFile, "utf8")) as Record<string, unknown>)
+      : undefined;
+  if (maybeFile && !stored) {
+    throw new Error(`File not found: ${maybeFile}`);
+  }
+  if (stored && stored.proposalId && String(stored.proposalId) !== "176" && stored.slug !== "moonwell-176") {
+    throw new Error(`Unsupported stored proposal '${String(stored.proposalId)}'`);
   }
 
-  const stored = JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
-  const proposalId = String(stored.proposalId ?? "");
-  if (proposalId !== "176") {
-    throw new Error(`Unsupported stored proposal '${proposalId || "missing"}'`);
-  }
-
+  const manifest = loadMoonwell176Manifest();
   const config = loadConfig();
-  if (!config.BASE_RPC_URL) {
-    throw new Error("BASE_RPC_URL is required to reproduce a receipt");
+  if (!config.BASE_RPC_URL || !config.ETHEREUM_RPC_URL) {
+    throw new Error("BASE_RPC_URL and ETHEREUM_RPC_URL are required to reproduce moonwell-176");
   }
   const clients = createForkClients(config);
-  const wallet = typeof stored.wallet === "string" ? (stored.wallet as Address) : undefined;
+  const ethereum = requireChainClient(clients, ETHEREUM_CHAIN_ID);
+  const base = requireChainClient(clients, BASE_CHAIN_ID);
+  const anchors = await verifyPinnedReplayAnchors({ ethereum, base, manifest });
+
+  const wallet =
+    stored && isReceiptFile(stored) && typeof stored.wallet === "string"
+      ? (stored.wallet as Address)
+      : manifest.wallets.historical.address;
   const replayed = await replayPinnedCollateralFactor({
-    ethereum: requireChainClient(clients, ETHEREUM_CHAIN_ID),
+    ethereum,
     baseRpcUrl: config.BASE_RPC_URL,
     wallet,
   });
-
-  const comparison = compareEconomicReceipts(stored, replayed);
+  const action = receiptMatchesManifestAction(replayed, manifest);
+  const honesty = describeReplayHonesty(replayed);
   const replayedHash = hashReceipt(replayed);
-  const storedHash = typeof stored.receiptHash === "string" ? stored.receiptHash : undefined;
-  const hashMatch = storedHash !== undefined && storedHash === replayedHash && isPhase5Receipt(stored);
+  const storedHash = stored && typeof stored.receiptHash === "string" ? stored.receiptHash : undefined;
+  const comparison =
+    stored && isReceiptFile(stored) ? compareEconomicReceipts(stored, replayed) : undefined;
 
   const report = {
-    file,
-    proposalId,
+    source: stored && isReceiptFile(stored) ? maybeFile : "replays/moonwell-176.json",
+    recomputed: true,
+    anchors: anchors.checks,
+    actionMatch: action.match,
+    actionDiffs: action.diffs,
+    honesty,
     wallet: replayed.wallet,
-    economicMatch: comparison.match,
-    diffs: comparison.diffs,
-    storedReceiptHash: storedHash ?? null,
     replayedReceiptHash: replayedHash,
-    hashMatch,
-    phase5Stored: isPhase5Receipt(stored),
+    storedReceiptHash: storedHash ?? null,
+    hashMatch: storedHash !== undefined ? storedHash === replayedHash : null,
+    economicMatch: comparison?.match ?? null,
+    diffs: comparison?.diffs ?? [],
     replayed: {
       beforeLiquidityRaw: replayed.before.risk.liquidityRaw.toString(),
       afterLiquidityRaw: replayed.after.risk.liquidityRaw.toString(),
@@ -64,7 +87,7 @@ async function main() {
   };
 
   console.log(JSON.stringify(toJsonSafe(report), null, 2));
-  if (!comparison.match) {
+  if (!action.match || (comparison && !comparison.match)) {
     process.exit(1);
   }
 }

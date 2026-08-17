@@ -21,6 +21,7 @@ pnpm test:chain
 pnpm moonwell:wallet 0x416ec2ca21a38cbcfeacd6a14532b3f348356d23
 pnpm governance:sync
 pnpm fork:replay moonwell-176
+pnpm replay:verify
 pnpm receipt:reproduce .data/replay-moonwell-176.json
 pnpm fork:strategies moonwell-176 --force-search-buffer
 pnpm fork:agent moonwell-176
@@ -33,6 +34,16 @@ Web: `http://localhost:3000`
 Paste a Base address for read-only analysis. Connect wallet is optional. **Prove ownership** signs a nonce-bound message before policy or execution.
 
 Set `ENABLE_MAINNET_TRANSACTION_PREPARATION=true` only when you intend to prepare signable calls. The API still will not send them. Automated tests do not broadcast mainnet transactions.
+
+Fresh-checkout replay (needs archive Base + Ethereum RPC and `anvil`):
+
+```bash
+cp .env.example .env
+pnpm install
+pnpm replay:verify
+```
+
+That command reads committed anchors in `replays/moonwell-176.json`, checks proposal 176 / block hashes / bytecode, forks Base `48025643`, applies the exact CF calldata, and prints the measured risk. It does not load saved liquidity numbers. The pinned historical wallet may lose liquidity without becoming insolvent; the report says so.
 
 Indexer: `pnpm --filter indexer start`  
 Health/metrics: `curl localhost:4000/api/v1/monitoring`  

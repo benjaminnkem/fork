@@ -6,7 +6,7 @@ Autonomous DeFi pre-execution risk agent. It applies a known protocol change to 
 
 V1 scope: Moonwell Core on Base Mainnet. Moonwell is adapter #1, not the product.
 
-This repository is in **Phase 11**: the indexer continuously monitors Ethereum/Base Moonwell governance, refreshes destination status, and only queues simulations for monitored wallets with real exposure.
+This repository is in **Phase 12**: the public moonwell-176 replay is a committed-anchor path. A fresh checkout recomputes the receipt from archive RPC; it does not replay saved numbers.
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ pnpm dev
 | `pnpm moonwell:wallet <0x…>` | read real Moonwell Core positions/risk on Base |
 | `pnpm governance:sync` | ingest Ethereum Moonwell proposals and decode Base CF effects |
 | `pnpm fork:replay moonwell-176` | Anvil-fork proposal 176 CF change and print a proof receipt |
-| `pnpm receipt:reproduce [file]` | re-run the stored receipt and compare economic fields |
+| `pnpm replay:verify` / `pnpm receipt:reproduce` | recompute moonwell-176 from `replays/moonwell-176.json`; optional prior receipt file for comparison |
 | `pnpm fork:strategies moonwell-176 [wallet]` | compare REPAY_DEBT and ADD_COLLATERAL on a real fork |
 | `pnpm fork:agent moonwell-176 [wallet]` | Groq agent over the real simulation tools |
 | `docker compose up -d` | local MongoDB and Redis |

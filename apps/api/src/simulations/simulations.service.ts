@@ -25,6 +25,7 @@ import {
 import {
   createMoonwellAdapter,
   JsonFileGovernanceStore,
+  loadMoonwell176Manifest,
   matchMoonwellExposure,
   PINNED_BASE_CF_PROPOSAL_ID,
   PINNED_REPLAY_FORK_BLOCK,
@@ -236,13 +237,18 @@ export class SimulationsService {
   }
 
   historicalReplays() {
+    const manifest = loadMoonwell176Manifest();
     return [
       {
-        slug: "moonwell-176",
-        proposalId: PINNED_BASE_CF_PROPOSAL_ID,
-        forkBlockNumber: PINNED_REPLAY_FORK_BLOCK.toString(),
-        forkBlockHash: PINNED_REPLAY_FORK_HASH,
-        replayGrade: "DESTINATION_EFFECT_REPLAY",
+        slug: manifest.slug,
+        proposalId: manifest.proposalId,
+        changeId: manifest.changeId,
+        forkBlockNumber: manifest.fork.blockNumber,
+        forkBlockHash: manifest.fork.blockHash,
+        replayGrade: manifest.replayGrade,
+        wallet: manifest.wallets.historical.address,
+        market: manifest.contracts.market,
+        recomputed: true,
       },
     ];
   }

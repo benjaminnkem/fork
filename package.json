@@ -17,6 +17,7 @@
     "governance:sync": "tsx scripts/governance-sync.ts",
     "fork:replay": "tsx scripts/fork-replay.ts",
     "receipt:reproduce": "tsx scripts/reproduce-receipt.ts",
+    "replay:verify": "tsx scripts/reproduce-receipt.ts",
     "fork:strategies": "tsx scripts/fork-strategies.ts",
     "fork:agent": "tsx scripts/fork-agent.ts",
     "test:e2e": "pnpm --filter web test:e2e"
