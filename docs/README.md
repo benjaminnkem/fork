@@ -1,7 +1,10 @@
 # Fork — Engineering Handoff Kit
 
 **Prepared:** 2026-08-15  
-**Purpose:** Give a coding agent with zero prior context enough product, architecture, security, protocol, testing, and execution context to build Fork incrementally as a real product.
+**Updated:** 2026-08-17 (Phase 15 handoff)  
+**Purpose:** Give a coding agent or new engineer enough product, architecture, security, protocol, testing, and execution context to run and extend Fork.
+
+Practical start: root `README.md` then `docs/HANDOFF.md`. Live gate: `docs/RELEASE_GATE.md`.
 
 ## What Fork is
 
@@ -17,18 +20,19 @@ The LLM may decide what to investigate or which strategy class to try. It must n
 
 ## Read these files in this order
 
-1. `PRD.md` — complete product definition and acceptance criteria.
-2. `TECHNICAL_SPECIFICATION.md` — implementation architecture, data model, APIs, queues, protocol adapter, simulation system, agent loop, and production concerns.
-3. `SECURITY_AND_THREAT_MODEL.md` — mandatory safety boundaries for a financial/agentic system.
-4. `AGENTS.md` — repository-wide instructions intended to be copied to the root of the actual code repository.
-5. `PLANS.md` — execution-plan rules for long-running Codex work.
-6. `CODEX_BUILD_PROMPTS.md` — exact ordered prompts to build the project phase-by-phase.
-7. `ENVIRONMENT_AND_OPERATIONS.md` — environment variables, local setup, deployment topology, health checks, and operational runbook.
-8. `TESTING_AND_RELEASE.md` — test matrix, real-chain acceptance gates, performance gates, and release checklist.
-9. `TOOLS_MCP_SKILLS.md` — MCP/skills assessment and recommended Codex setup.
-10. `SOURCES.md` — primary documentation and repositories used to design this handoff.
-11. `.agents/skills/fork-onchain-verification/SKILL.md` — reusable Codex skill for evidence-first protocol/simulation work.
-12. `.agents/skills/fork-release-gate/SKILL.md` — reusable Codex skill for production release validation.
+1. `HANDOFF.md` — setup, env-by-app, deploy, tests, replay, signing, what not to touch.
+2. `PRD.md` — complete product definition and acceptance criteria.
+3. `TECHNICAL_SPECIFICATION.md` — implementation architecture, data model, APIs, queues, protocol adapter, simulation system, agent loop, and production concerns.
+4. `SECURITY_AND_THREAT_MODEL.md` — mandatory safety boundaries for a financial/agentic system.
+5. `AGENTS.md` — repository-wide instructions (also at the repo root).
+6. `PLANS.md` — execution-plan rules for long-running work.
+7. `CODEX_BUILD_PROMPTS.md` — ordered build phases (0–15).
+8. `ENVIRONMENT_AND_OPERATIONS.md` — environment variables, local setup, deployment topology.
+9. `TESTING_AND_RELEASE.md` — test matrix and release checklist.
+10. `RELEASE_GATE.md` — last live gate timings and receipt hash.
+11. `SOURCES.md` — primary documentation and repositories.
+12. `.agents/skills/fork-onchain-verification/SKILL.md` — evidence-first protocol/simulation work.
+13. `.agents/skills/fork-release-gate/SKILL.md` — production release validation.
 
 ## Non-negotiable product rules
 

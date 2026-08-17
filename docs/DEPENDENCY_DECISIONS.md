@@ -9,7 +9,7 @@ Recorded 2026-08-16 during Phase 0. Versions are current stables from npm at boo
 | TypeScript | 5.9.2 | already in the repo; npm latest was 7.0.2, which is too new to adopt mid-bootstrap |
 | turbo | 2.10.10 | existing |
 | Next.js | 16.3.1 | current stable; App Router |
-| React | 19.2.0 | already used by `@repo/ui` |
+| React | 19.2.0 | Next.js product UI. `@repo/ui` is leftover Turborepo starter and is unused |
 | NestJS | 11.2.1 | current `@nestjs/core` |
 | Zod | 4.4.3 | current; used only for env validation in Phase 0 |
 | Pino | 10.3.1 | structured logs |

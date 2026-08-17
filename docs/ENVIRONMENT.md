@@ -28,7 +28,7 @@ Keep this file synchronized with `.env.example`.
 | `MOONWELL_ALLOW_REGISTRY_OVERRIDE` | no, default false | protocol | no | fail-closed override |
 | `GOVERNANCE_POLL_INTERVAL_MS` | no, 60000 | indexer | no | poll interval |
 | `RUN_INDEXER` | no | indexer | no | set to `1` for a live monitor tick test |
-| `GOVERNANCE_*_START_BLOCK` | later | indexer | no | backfill cursors |
+| `GOVERNANCE_*_START_BLOCK` | unused | indexer | no | reserved names only; not read. Cursors persist in `.data/governance-store.json` |
 | `GOVERNANCE_LOG_BLOCK_RANGE` | no | indexer | no | eth_getLogs window |
 | `ANVIL_*` / `MAX_PARALLEL_FORKS` / `SIMULATION_*` | Phase 4 | simulator | no | fork controls; `FORK_START_TIMEOUT_MS` default 180000 |
 | `GROQ_API_KEY` | Phase 7 / live agent tests | agent | yes | Groq Console key (`gsk_…`) |
@@ -43,5 +43,9 @@ Keep this file synchronized with `.env.example`.
 | `NEXT_PUBLIC_BASE_CHAIN_ID` | web | web | no | 8453 |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | optional | web | no | WalletConnect connector; injected wallets work without it |
 | `RUN_WEB_E2E` | no | web | no | set to `1` for live Playwright UI → API → Anvil |
+| `RUN_API_E2E` | no | api | no | set to `1` for Nest + BullMQ impact e2e |
+| `RUN_AGENT` | no | agent | no | set to `1` for live Groq agent tests |
+
+Obtain RPC URLs from Alchemy or QuickNode (Base archive + Ethereum). Obtain `GROQ_API_KEY` from https://console.groq.com/keys (`gsk_…`). Obtain an optional WalletConnect id from https://cloud.reown.com/. Generate `SESSION_SECRET` with `openssl rand -hex 32`. Grouped deploy notes: `docs/HANDOFF.md`.
 
 Production (`NODE_ENV=production` or `APP_ENV=production`) refuses to start without session, Mongo, Redis, Base RPC, and Ethereum RPC. It also refuses autonomous mainnet execution.

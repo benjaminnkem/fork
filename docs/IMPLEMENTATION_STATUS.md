@@ -1,8 +1,9 @@
 # Implementation status
 
-**Phase:** 14 — Full E2E / release gate  
+**Phase:** 15 — Final documentation, deployment, and handoff  
 **Date:** 2026-08-17  
-**Report:** `docs/RELEASE_GATE.md`
+**Handoff:** `docs/HANDOFF.md`  
+**Release gate:** `docs/RELEASE_GATE.md`
 
 ## Done
 
@@ -48,6 +49,8 @@
 - `apps/api` now declares `express@5.2.1` so `pnpm --filter api start` resolves the 32kb body-parser import under pnpm isolation.
 - Default `AGENT_TIMEOUT_MS` is 180000. A 90s budget timed out after five successful live tools.
 - `pnpm fork:strategies moonwell-176 <wallet>` no longer treats the wallet as the scenario name.
+- Phase 15 handoff: README + `docs/HANDOFF.md` cover setup, env-by-app, deploy order, replay, signing, and what not to touch before submission. CI now runs on `master`. Unused `GOVERNANCE_*_START_BLOCK` names are labeled as unused.
+- Phase 15 static re-run: lint 26s, check-types 88s, test 83s, build 123s. All passed. Live gate not re-executed; see `docs/RELEASE_GATE.md`.
 
 ## Not done (by design)
 - Email/Telegram notifications are not added.
@@ -55,8 +58,8 @@
 - No mainnet send is performed by the server or by automated tests.
 - Autonomous mainnet execution stays off.
 - `DEFAULT_MIN_SAFETY_BUFFER_BPS` is still unset; product owner must choose it.
-- Phase 15 (final docs/deploy handoff) is not started.
 - No hosted production deployment was exercised. Local `/health/ready` was green. Local `SESSION_SECRET` is still unset; production start refuses without it.
+- No production Docker images. Compose only runs Mongo and Redis. API/indexer/simulator run via `tsx`.
 
 ## Known limitations
 

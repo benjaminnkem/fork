@@ -2,6 +2,8 @@
 
 ## Local
 
+Zero-context setup is in `docs/HANDOFF.md`. Short path:
+
 ```bash
 pnpm install
 cp .env.example .env

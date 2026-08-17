@@ -100,7 +100,7 @@ ANVIL_HOST=127.0.0.1
 ANVIL_PORT_START=9500
 MAX_PARALLEL_FORKS=2
 SIMULATION_TIMEOUT_MS=120000
-FORK_START_TIMEOUT_MS=15000
+FORK_START_TIMEOUT_MS=180000
 SIMULATION_RECEIPT_SCHEMA_VERSION=1
 ```
 
@@ -130,7 +130,7 @@ Do not guess a financial policy value in code. Product owner should explicitly a
 ### Execution
 
 ```env
-ENABLE_MAINNET_TRANSACTION_PREPARATION=true
+ENABLE_MAINNET_TRANSACTION_PREPARATION=false
 ENABLE_AUTONOMOUS_MAINNET_EXECUTION=false
 ```
 
@@ -146,9 +146,7 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<optional-if-walletconnect-enabled>
 
 Never prefix secrets with `NEXT_PUBLIC_`.
 
-## 3. Local startup target
-
-Expected future commands after implementation:
+## 3. Local startup
 
 ```bash
 pnpm install
@@ -156,21 +154,22 @@ cp .env.example .env
 
 docker compose up -d mongodb redis
 
-pnpm db:indexes
 pnpm verify:contracts
 pnpm dev
 ```
 
+Mongo indexes are created when the API or simulator connects. There is no `pnpm db:indexes`.
+
 Or separately:
 
 ```bash
-pnpm --filter api dev
-pnpm --filter indexer dev
-pnpm --filter simulator dev
+pnpm --filter api start
+pnpm --filter indexer start
+pnpm --filter simulator start
 pnpm --filter web dev
 ```
 
-Exact scripts must be documented by Codex after implementation.
+See `docs/HANDOFF.md` for the full setup and deploy order.
 
 ## 4. Real-chain smoke sequence
 
@@ -178,8 +177,8 @@ Exact scripts must be documented by Codex after implementation.
 2. `pnpm chain:base:smoke`
 3. `pnpm chain:ethereum:smoke`
 4. `pnpm moonwell:wallet <address>`
-5. `pnpm governance:sync --once`
-6. `pnpm fork:replay <real-scenario-slug>`
+5. `pnpm governance:sync`
+6. `pnpm fork:replay moonwell-176`
 7. `pnpm replay:verify` (fresh checkout; optional `pnpm receipt:reproduce .data/replay-moonwell-176.json` to compare a previous run)
 8. `pnpm fork:strategies moonwell-176 --force-search-buffer`
 9. `pnpm fork:agent moonwell-176`
@@ -216,14 +215,9 @@ API/indexer/simulator may share one VM initially but remain separate processes.
 At minimum:
 
 - `/health/live` — process alive;
-- `/health/ready` — required dependencies ready;
-- checks for Mongo;
-- Redis;
-- Base RPC chain ID/current block;
-- Ethereum RPC chain ID/current block;
-- Moonwell contract registry bytecode;
-- Anvil binary availability on simulator worker;
-- Groq model availability may be degraded rather than make read-only API totally unavailable.
+- `/health/ready` — Mongo, Redis, Base RPC chain ID, Ethereum RPC chain ID.
+- Groq is reported as `configured` / `not_configured` only. Ready does not ping Groq or Anvil (those would burn quota / require the worker).
+- Contract registry bytecode is checked by `pnpm verify:contracts`, not on every ready probe.
 
 ## 7. Free-tier/cost awareness
 

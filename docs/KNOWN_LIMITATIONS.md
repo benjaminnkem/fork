@@ -3,7 +3,7 @@
 - Replay is `DESTINATION_EFFECT_REPLAY`, not a full Wormhole/Temporal Governor VAA replay. Anvil impersonates the Temporal Governor and sends the exact destination calldata.
 - Fork startup needs archive RPC and can take well over 15s. Default `FORK_START_TIMEOUT_MS` is 180000.
 - Pre-169 proposal IDs on the Ethereum governor have empty calldata.
-- Archive capability is not proven until a real historical fork in Phase 4. A provider that answers `eth_blockNumber` may still fail on old state.
+- Archive capability is proven by `pnpm replay:verify` against Base `48025643`. A provider that only answers `eth_blockNumber` can still fail on that historical state.
 - Public Base RPC remains fallback-only and is rate-limited. Ethereum has no default public fallback unless `ETHEREUM_FALLBACK_RPC_URL` is set.
 - Moonwell Views addresses disagree between official docs and SDK 0.22.0. Unused until re-verified.
 - `moonwell-contracts-v2` README still describes Moonbeam as the governor source. Ignored in favor of official contracts + MIP-X58 + onchain state.
@@ -31,3 +31,6 @@
 - Groq readiness is configuration presence, not a live ping on every `/health/ready` (that would burn rate limits). A Groq outage fails the agent closed; it does not invent numbers.
 - Impact queue inflight is capped at 16. Additional creates return 503 / are skipped by the indexer.
 - Anvil is killed as a process group on stop/shutdown. A host `kill -9` of the Node process can still leave an Anvil child until the OS reaps it.
+- `GOVERNANCE_BASE_START_BLOCK` and `GOVERNANCE_ETHEREUM_START_BLOCK` are unused reserved names.
+- `@repo/ui` is leftover Turborepo starter (hello-button) and is not imported by the product.
+- API, indexer, and simulator start TypeScript with `tsx`. `pnpm build` typechecks them (`tsc --noEmit`) and builds Next.js. There is no production container image in-repo.
