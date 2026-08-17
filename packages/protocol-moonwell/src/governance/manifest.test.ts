@@ -24,6 +24,9 @@ describe("moonwell-176 manifest", () => {
       PINNED_ADD_COLLATERAL_WALLET.toLowerCase(),
     );
     expect(manifest.wallets.repaySmoke.address.toLowerCase()).toBe(PINNED_REPAY_WALLET.toLowerCase());
+    expect(manifest.wallets.shortfallCreated?.address.toLowerCase()).toBe(
+      "0x0efc0653d4fc2218f27ba9bb5767c0c83af25ae6",
+    );
   });
 
   it("rejects a manifest that embeds computed results", () => {

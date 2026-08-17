@@ -14,6 +14,7 @@
 - Mongo schemas exist in `@fork/persistence`. Nest/Mongoose connect and create indexes at API/simulator startup.
 - `pnpm replay:verify` / `pnpm receipt:reproduce` support the pinned moonwell-176 destination-effect replay only. They recompute from `replays/moonwell-176.json`. Optional comparison to a prior receipt file is extra, not the source of truth.
 - The pinned impact wallet `0x9eec…6b35` has USDC debt but no USDC/wrsETH wallet balance at block 48025643, so both rescues are infeasible there. Assets are not minted.
+- `0x0EFC…5aE6` is an Anvil-verified 176 `SHORTFALL_CREATED` wallet at the fork block. Its live Comptroller status can be SAFE again. The empty “relevant changes” card means the API did not load `.data/governance-store.json` (cwd bug; store is resolved from repo root now) or `pnpm governance:sync` has not been run.
 - mwrsETH mint and borrow are paused at that block. ADD_COLLATERAL therefore uses another listed market the wallet already holds (USDC on `0x494c…462d`).
 - Derived `safetyBufferBps` is `liquidity * 10000 / oraclePricedBorrows`. Canonical solvency remains Comptroller `getAccountLiquidity`.
 - The Groq agent cannot invent a rescue if both models fail or tools return infeasible. Live agent tests require `RUN_AGENT=1` and a Groq Console API key (`gsk_…`). A non-Groq key fails closed.

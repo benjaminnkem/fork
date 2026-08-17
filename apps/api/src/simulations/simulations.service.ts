@@ -13,6 +13,7 @@ import {
   toJsonSafe,
 } from "@fork/blockchain";
 import type { AppConfig } from "@fork/config";
+import { repoDataPath } from "@fork/config";
 import {
   createEvent,
   findReceiptByHash,
@@ -40,7 +41,6 @@ import {
   type Address,
   type ImpactSimulationJob,
 } from "@fork/shared";
-import { resolve } from "node:path";
 import { APP_CONFIG } from "../config.token.js";
 import { IMPACT_QUEUE, PERSISTENCE } from "../persistence.token.js";
 
@@ -213,7 +213,7 @@ export class SimulationsService {
     const clients = createForkClients(this.config);
     const adapter = createMoonwellAdapter(requireChainClient(clients, BASE_CHAIN_ID));
     const positions = await adapter.getUserPositions(wallet);
-    const store = new JsonFileGovernanceStore(resolve(process.cwd(), ".data/governance-store.json"));
+    const store = new JsonFileGovernanceStore(repoDataPath("governance-store.json"));
     const indexed = await store.listIndexedChanges();
     const matches = [];
     for (const record of indexed) {
@@ -232,12 +232,12 @@ export class SimulationsService {
   }
 
   async listChanges() {
-    const store = new JsonFileGovernanceStore(resolve(process.cwd(), ".data/governance-store.json"));
+    const store = new JsonFileGovernanceStore(repoDataPath("governance-store.json"));
     return toJsonSafe({ changes: await store.listIndexedChanges() });
   }
 
   async getChange(id: string) {
-    const store = new JsonFileGovernanceStore(resolve(process.cwd(), ".data/governance-store.json"));
+    const store = new JsonFileGovernanceStore(repoDataPath("governance-store.json"));
     const record = await store.getIndexedChange(id);
     if (!record) {
       throw new NotFoundException({ code: "NOT_FOUND", message: "Change not found" });

@@ -41,6 +41,7 @@ export {
   PINNED_REPLAY_WALLET,
   PINNED_ADD_COLLATERAL_WALLET,
   PINNED_REPAY_WALLET,
+  PINNED_SHORTFALL_WALLET,
 } from "./governance/replay.js";
 export { buildAddCollateralPlan, buildRepayPlan } from "./strategy/plans.js";
 export { buildLiveAllowlistedPlan } from "./strategy/live-plan.js";

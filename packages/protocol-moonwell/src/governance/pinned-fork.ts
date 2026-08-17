@@ -27,6 +27,8 @@ export const PINNED_REPLAY_FORK_HASH = MANIFEST.fork.blockHash;
 export const PINNED_REPLAY_WALLET = MANIFEST.wallets.historical.address;
 export const PINNED_ADD_COLLATERAL_WALLET = MANIFEST.wallets.isolatedAddCollateral.address;
 export const PINNED_REPAY_WALLET = MANIFEST.wallets.repaySmoke.address;
+export const PINNED_SHORTFALL_WALLET =
+  MANIFEST.wallets.shortfallCreated?.address ?? ("0x0EFC0653D4Fc2218f27ba9Bb5767C0c83aF25aE6" as Address);
 export const PINNED_REPLAY_MANIFEST = MANIFEST;
 
 export interface PinnedReplaySession {

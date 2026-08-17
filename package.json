@@ -20,6 +20,7 @@
     "replay:verify": "tsx scripts/reproduce-receipt.ts",
     "fork:strategies": "tsx scripts/fork-strategies.ts",
     "fork:agent": "tsx scripts/fork-agent.ts",
+    "hunt:shortfall": "tsx scripts/find-cf-shortfall.ts",
     "test:e2e": "pnpm --filter web test:e2e"
   },
   "devDependencies": {

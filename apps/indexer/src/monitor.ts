@@ -1,8 +1,8 @@
-import { resolve } from "node:path";
 import { Queue } from "bullmq";
 import { Redis } from "ioredis";
 import { createForkClients, getBlockAnchor, requireChainClient } from "@fork/blockchain";
 import type { AppConfig } from "@fork/config";
+import { repoDataPath } from "@fork/config";
 import {
   connectMongo,
   createPersistenceModels,
@@ -173,7 +173,7 @@ export async function runMonitorTick(input: {
     enqueued,
     monitoredWallets,
   };
-  writeMetrics(input.metricsPath ?? resolve(process.cwd(), ".data/monitoring-metrics.json"), metrics);
+  writeMetrics(input.metricsPath ?? repoDataPath("monitoring-metrics.json"), metrics);
   return { metrics, transitions };
 }
 
@@ -194,7 +194,7 @@ export async function openMonitorInfra(config: AppConfig): Promise<{
 }
 
 export function defaultGovernanceStore(): GovernanceStore {
-  return new JsonFileGovernanceStore(resolve(process.cwd(), ".data/governance-store.json"));
+  return new JsonFileGovernanceStore(repoDataPath("governance-store.json"));
 }
 
 export type { NormalizedIndexedChange };

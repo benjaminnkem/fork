@@ -12,7 +12,7 @@ import { SimulateForm } from "@/components/simulate-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePositions, useRelevantChanges, useRisk } from "@/hooks/use-api";
 import { explorerAddress } from "@/lib/format";
-import { DEMO_WALLET } from "@/lib/demo";
+import { DEMO_WALLET, SHORTFALL_DEMO_WALLET } from "@/lib/demo";
 
 export function WalletAnalysis({ address }: { address: string }) {
   const search = useSearchParams();
@@ -21,12 +21,14 @@ export function WalletAnalysis({ address }: { address: string }) {
   const risk = useRisk(address);
   const relevant = useRelevantChanges(address);
   const explorer = explorerAddress(8453, address);
-  const isDemo = address.toLowerCase() === DEMO_WALLET.toLowerCase();
+  const isShortfallDemo = address.toLowerCase() === SHORTFALL_DEMO_WALLET.toLowerCase();
+  const isDemo =
+    isShortfallDemo || address.toLowerCase() === DEMO_WALLET.toLowerCase();
 
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow={isDemo ? "Demo wallet" : "Live wallet"}
+        eyebrow={isShortfallDemo ? "Shortfall demo" : isDemo ? "Solvent demo" : "Live wallet"}
         title="Wallet analysis"
         description={
           <div className="grid gap-2">

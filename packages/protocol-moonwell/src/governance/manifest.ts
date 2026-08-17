@@ -44,6 +44,7 @@ export interface ReplayManifest {
     historical: ReplayWalletRole;
     isolatedAddCollateral: ReplayWalletRole;
     repaySmoke: ReplayWalletRole;
+    shortfallCreated?: ReplayWalletRole;
   };
   sources: string[];
 }
@@ -162,6 +163,9 @@ export function parseReplayManifest(raw: unknown): ReplayManifest {
       historical: asWallet(wallets.historical, "wallets.historical"),
       isolatedAddCollateral: asWallet(wallets.isolatedAddCollateral, "wallets.isolatedAddCollateral"),
       repaySmoke: asWallet(wallets.repaySmoke, "wallets.repaySmoke"),
+      shortfallCreated: wallets.shortfallCreated
+        ? asWallet(wallets.shortfallCreated, "wallets.shortfallCreated")
+        : undefined,
     },
     sources: Array.isArray(record.sources) ? record.sources.map(String) : [],
   };

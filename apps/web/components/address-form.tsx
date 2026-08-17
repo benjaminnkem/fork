@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { normalizeAddress } from "@/lib/api";
-import { DEMO_WALLET, DEMO_WALLET_BLURB, DEMO_WALLET_TITLE } from "@/lib/demo";
+import { DEMO_WALLETS } from "@/lib/demo";
 import { shortenHex } from "@/lib/format";
 import { useAnalysisStore } from "@/lib/store";
 
@@ -91,23 +91,30 @@ export function AddressForm({
         </Button>
       </div>
       {showDemo ? (
-        <div className="grid gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <div className="grid gap-1">
-            <p className="text-sm font-medium">{DEMO_WALLET_TITLE}</p>
-            <p className="text-sm text-muted-foreground">{DEMO_WALLET_BLURB}</p>
-            <p className="font-mono text-xs text-muted-foreground">{shortenHex(DEMO_WALLET, 8, 6)}</p>
-          </div>
-          <Button
-            type="button"
-            variant="secondary"
-            size={compact ? "default" : "lg"}
-            onClick={() => {
-              setValue(DEMO_WALLET);
-              submit(DEMO_WALLET, "demo");
-            }}
-          >
-            Use demo wallet
-          </Button>
+        <div className="grid gap-3">
+          {DEMO_WALLETS.map((demo) => (
+            <div
+              key={demo.address}
+              className="grid gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4"
+            >
+              <div className="grid gap-1">
+                <p className="text-sm font-medium">{demo.title}</p>
+                <p className="text-sm text-muted-foreground">{demo.blurb}</p>
+                <p className="font-mono text-xs text-muted-foreground">{shortenHex(demo.address, 8, 6)}</p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size={compact ? "default" : "lg"}
+                onClick={() => {
+                  setValue(demo.address);
+                  submit(demo.address, "demo");
+                }}
+              >
+                {demo.button}
+              </Button>
+            </div>
+          ))}
         </div>
       ) : null}
     </form>

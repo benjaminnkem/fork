@@ -123,6 +123,21 @@ Verified with `balanceOf` + `getAccountSnapshot` + Comptroller pause reads:
 - `0x416ec2ca21a38cbcfeacd6a14532b3f348356d23`: EURC debt with EURC wallet balance `489012`. REPAY_DEBT asset exists, but the wallet has no mwrsETH exposure to proposal 176.
 - `mintGuardianPaused(mwrsETH)` is true at the fork block.
 
+## 11. Shortfall wallet at the 176 fork (2026-08-17)
+
+Screened 323 mwrsETH transfer counterparts via `alchemy_getAssetTransfers` through block `48025643`. 55 had mwrsETH entered as collateral at that block.
+
+One account is predicted and Anvil-verified to go insolvent under the 0.68 → 0.52 CF change:
+
+- `0x0EFC0653D4Fc2218f27ba9Bb5767C0c83aF25aE6`
+- Before: Comptroller `SAFE`, liquidity `2664916841585395022`, shortfall 0
+- After destination-effect replay: `SHORTFALL`, classification `SHORTFALL_CREATED`, shortfall `2041592507053456043`
+- Live safe-head (block ~50105080) can be `SAFE` again with a smaller remaining position. Demo the **simulation**, not the live risk card.
+
+Re-run: `pnpm exec tsx scripts/find-cf-shortfall.ts`
+
+Do not treat already-insolvent accounts (shortfall before 176) as “created by 176.”
+
 ## 10. Open later-phase questions
 
 - Exact MultichainGovernorV2 event/ABI surface on implementation `0x78c5…b169`.

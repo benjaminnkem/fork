@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Optional } from "@nestjs/common";
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { Queue } from "bullmq";
+import { repoDataPath } from "@fork/config";
 import { IMPACT_QUEUE } from "./persistence.token.js";
 import { IMPACT_SIMULATION_QUEUE, type ImpactSimulationJob } from "@fork/shared";
 
@@ -16,7 +16,7 @@ export class MonitoringController {
     let snapshot: Record<string, unknown> | null = null;
     try {
       snapshot = JSON.parse(
-        readFileSync(resolve(process.cwd(), ".data/monitoring-metrics.json"), "utf8"),
+        readFileSync(repoDataPath("monitoring-metrics.json"), "utf8"),
       ) as Record<string, unknown>;
     } catch {
       snapshot = null;

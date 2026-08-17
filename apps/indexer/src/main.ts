@@ -1,5 +1,4 @@
-import { resolve } from "node:path";
-import { loadConfig, loadRootEnv } from "@fork/config";
+import { loadConfig, loadRootEnv, repoDataPath } from "@fork/config";
 import { createLogger } from "@fork/observability";
 import { defaultGovernanceStore, openMonitorInfra, runMonitorTick } from "./monitor.js";
 
@@ -8,7 +7,7 @@ const config = loadConfig();
 const logger = createLogger({ name: "indexer", service: "indexer", level: config.LOG_LEVEL });
 const store = defaultGovernanceStore();
 const infra = await openMonitorInfra(config);
-const metricsPath = resolve(process.cwd(), ".data/monitoring-metrics.json");
+const metricsPath = repoDataPath("monitoring-metrics.json");
 
 async function tick() {
   const result = await runMonitorTick({

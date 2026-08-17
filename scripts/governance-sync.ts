@@ -1,6 +1,5 @@
-import { resolve } from "node:path";
 import { createForkClients, requireChainClient, toJsonSafe } from "@fork/blockchain";
-import { loadConfig, loadRootEnv } from "@fork/config";
+import { loadConfig, loadRootEnv, repoDataPath } from "@fork/config";
 import { ETHEREUM_CHAIN_ID } from "@fork/shared";
 import {
   JsonFileGovernanceStore,
@@ -13,7 +12,7 @@ loadRootEnv();
 async function main() {
   const config = loadConfig();
   const clients = createForkClients(config);
-  const store = new JsonFileGovernanceStore(resolve(process.cwd(), ".data/governance-store.json"));
+  const store = new JsonFileGovernanceStore(repoDataPath("governance-store.json"));
   const result = await syncMoonwellGovernor({
     ethereum: requireChainClient(clients, ETHEREUM_CHAIN_ID),
     base: clients.base,

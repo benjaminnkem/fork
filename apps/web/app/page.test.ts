@@ -22,7 +22,10 @@ describe("product copy", () => {
     expect(view).toContain(
       "No dashboard numbers are shown until the API returns a real wallet snapshot",
     );
-    expect(form).toContain("Use demo wallet");
+    expect(form).toContain("DEMO_WALLETS");
+    expect(demo).toContain("Use shortfall demo");
+    expect(demo).toContain("Use solvent demo");
     expect(demo).toContain("0x494c7fdb753c15b69fea2293e1b76567ca94462d");
+    expect(demo).toContain("0x0EFC0653D4Fc2218f27ba9Bb5767C0c83aF25aE6");
   });
 });

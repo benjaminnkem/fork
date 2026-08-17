@@ -20,6 +20,7 @@ export {
   PINNED_REPLAY_FORK_HASH,
   PINNED_REPLAY_MANIFEST,
   PINNED_REPLAY_WALLET,
+  PINNED_SHORTFALL_WALLET,
 } from "./pinned-fork.js";
 
 async function codeHashAt(

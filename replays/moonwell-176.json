@@ -43,6 +43,11 @@
       "address": "0x416ec2ca21a38cbcfeacd6a14532b3f348356d23",
       "role": "PINNED_REPAY_WALLET",
       "notes": "EURC repay smoke wallet. Not exposed to mwrsETH CF 176."
+    },
+    "shortfallCreated": {
+      "address": "0x0EFC0653D4Fc2218f27ba9Bb5767C0c83aF25aE6",
+      "role": "PINNED_SHORTFALL_CREATED_WALLET",
+      "notes": "mwrsETH collateral at the 176 fork block. DESTINATION_EFFECT_REPLAY of 176 creates Comptroller shortfall. Live head can be SAFE again after the user reduced the position. Do not store measured liquidity here."
     }
   },
   "sources": [

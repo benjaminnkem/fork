@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { canonicalizeJson, createForkClients, getBlockAnchor, requireChainClient, toJsonSafe } from "@fork/blockchain";
 import type { AppConfig } from "@fork/config";
+import { repoDataPath } from "@fork/config";
 import { type PersistenceModels } from "@fork/persistence";
 import {
   buildLiveAllowlistedPlan,
@@ -22,7 +23,6 @@ import {
   type StrategyType,
 } from "@fork/shared";
 import { keccak256, stringToBytes } from "viem";
-import { resolve } from "node:path";
 import { APP_CONFIG } from "../config.token.js";
 import { PERSISTENCE } from "../persistence.token.js";
 import { SimulationsService } from "../simulations/simulations.service.js";
@@ -107,7 +107,7 @@ export class ExecutionService {
       throw new ForkError("SIMULATION_STALE", "Simulation is older than SIMULATION_MAX_AGE_SECONDS");
     }
 
-    const store = new JsonFileGovernanceStore(resolve(process.cwd(), ".data/governance-store.json"));
+    const store = new JsonFileGovernanceStore(repoDataPath("governance-store.json"));
     const indexed = await store.getIndexedChange(run.protocolChangeId);
     if (!indexed) {
       throw new ForkError("GOVERNANCE_STATE_UNCERTAIN", "Indexed change is missing");
