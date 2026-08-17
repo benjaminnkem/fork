@@ -10,7 +10,7 @@ This repository is in **Phase 15** (handoff). The last live release gate is `doc
 
 ## Prerequisites
 
-- Node.js 20+ (`.nvmrc` is 20)
+- Node.js 20+ (`.nvmrc` and CI are 24)
 - pnpm 9 (`corepack enable`)
 - Docker + Docker Compose (Mongo 7 + Redis 7)
 - Foundry (`anvil`) for replay and impact simulation

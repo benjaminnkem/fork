@@ -149,7 +149,7 @@ Never prefix a secret with `NEXT_PUBLIC_`.
 
 Prerequisites:
 
-- Node 20+ (`.nvmrc` is 20; Node 24 is fine)
+- Node 20+ (`.nvmrc` and GitHub Actions are 24)
 - pnpm 9 (`corepack enable && corepack prepare pnpm@9.0.0 --activate`)
 - Docker Desktop + Compose
 - Foundry (`curl -L https://foundry.paradigm.xyz | bash` then `foundryup`; need `anvil`)

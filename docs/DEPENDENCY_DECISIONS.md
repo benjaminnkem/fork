@@ -4,7 +4,7 @@ Recorded 2026-08-16 during Phase 0. Versions are current stables from npm at boo
 
 | Package | Version | Why |
 |---|---|---|
-| Node | >=20 | Nest 11 / Next 16; `.nvmrc` is 20 |
+| Node | >=20 | Nest 11 / Next 16; `.nvmrc` and CI are 24 |
 | pnpm | 9.0.0 | already in the repo |
 | TypeScript | 5.9.2 | already in the repo; npm latest was 7.0.2, which is too new to adopt mid-bootstrap |
 | turbo | 2.10.10 | existing |
