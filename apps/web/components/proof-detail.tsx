@@ -7,7 +7,7 @@ import { ErrorState } from "@/components/error-state";
 import { EvidenceList } from "@/components/evidence-list";
 import { StatusBadge } from "@/components/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageLoading } from "@/components/loading-state";
 import { useProof, useSimulation } from "@/hooks/use-api";
 import type { JsonEvidence } from "@/lib/api";
 import { asString, formatTokenRaw, shortenHex } from "@/lib/format";
@@ -21,7 +21,9 @@ export function ProofDetail({ id }: { id: string }) {
   const ready = Boolean(simulation.data?.receiptHash);
   const proof = useProof(id, ready);
 
-  if (simulation.isLoading || (ready && proof.isLoading)) return <Skeleton className="h-64" />;
+  if (simulation.isLoading || (ready && proof.isLoading)) {
+    return <PageLoading label="Loading proof" />;
+  }
   if (simulation.error) return <ErrorState error={simulation.error} title="Simulation missing" />;
   if (!ready) {
     return (

@@ -2,7 +2,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CardLoading } from "@/components/loading-state";
 import { useAgentTrace } from "@/hooks/use-api";
 import { ApiError } from "@/lib/api";
 import { asString } from "@/lib/format";
@@ -19,7 +19,7 @@ export function AgentTrace({ runId }: { runId?: string }) {
     );
   }
 
-  if (trace.isLoading) return <Skeleton className="h-32" />;
+  if (trace.isLoading) return <CardLoading label="Loading agent trace" />;
   if (trace.error) {
     if (trace.error instanceof ApiError && trace.error.status === 404) {
       return (

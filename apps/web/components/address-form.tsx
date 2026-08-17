@@ -66,19 +66,15 @@ export function AddressForm({
           </p>
         ) : compact ? null : (
           <p id="wallet-address-help" className="text-sm text-muted-foreground">
-            Paste any Base address for read-only Moonwell analysis. Connecting a wallet is separate
-            and does not prove ownership.
+            Connecting a wallet is separate and does not prove ownership.
           </p>
         )}
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" size={compact ? "default" : "lg"}>
-          Analyze address
-        </Button>
+        <Button type="submit">{compact ? "Analyze" : "Analyze address"}</Button>
         <Button
           type="button"
           variant="outline"
-          size={compact ? "default" : "lg"}
           disabled={!isConnected || !address}
           onClick={() => {
             if (address) {
@@ -91,30 +87,27 @@ export function AddressForm({
         </Button>
       </div>
       {showDemo ? (
-        <div className="grid gap-3">
-          {DEMO_WALLETS.map((demo) => (
-            <div
-              key={demo.address}
-              className="grid gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4"
-            >
-              <div className="grid gap-1">
-                <p className="text-sm font-medium">{demo.title}</p>
-                <p className="text-sm text-muted-foreground">{demo.blurb}</p>
-                <p className="font-mono text-xs text-muted-foreground">{shortenHex(demo.address, 8, 6)}</p>
-              </div>
+        <div className="grid gap-2">
+          <p className="text-xs tracking-wide text-muted-foreground uppercase">Demo wallets</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {DEMO_WALLETS.map((demo) => (
               <Button
+                key={demo.address}
                 type="button"
                 variant="secondary"
-                size={compact ? "default" : "lg"}
+                className="h-auto flex-col items-start gap-1 px-3 py-2.5 text-left whitespace-normal"
                 onClick={() => {
                   setValue(demo.address);
                   submit(demo.address, "demo");
                 }}
               >
-                {demo.button}
+                <span>{demo.button}</span>
+                <span className="font-mono text-xs font-normal text-muted-foreground">
+                  {shortenHex(demo.address, 8, 6)}
+                </span>
               </Button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : null}
     </form>

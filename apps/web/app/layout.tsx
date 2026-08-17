@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { Providers } from "@/app/providers";
 import { SiteHeader } from "@/components/site-header";
 import { cn } from "@/lib/utils";
 import "./globals.css";
+
+const spaceGroteskHeading = Space_Grotesk({subsets:['latin'],variable:'--font-heading'});
+
+const ibmPlexSans = IBM_Plex_Sans({subsets:['latin'],variable:'--font-sans'});
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -15,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={cn("dark font-sans", geist.variable)}>
+    <html lang="en" className={cn("dark font-sans", geist.variable, "font-sans", ibmPlexSans.variable, spaceGroteskHeading.variable)}>
       <body>
         <a
           href="#main"

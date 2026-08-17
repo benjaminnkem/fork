@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { ErrorState } from "@/components/error-state";
 import {
   getAuthSession,
@@ -54,36 +56,42 @@ export function PolicyForm({ address }: { address: string }) {
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Risk policy</CardTitle>
-        <CardDescription>
-          Read-only analysis does not require ownership. Saving a policy does. A buffer is only
-          stored if you type one; Fork will not invent a default.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3">
+    <Collapsible>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="px-0">
+          Risk policy and monitoring
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="grid gap-3 pt-3">
         <p className="text-sm text-muted-foreground">
-          Active source: {String(current.minSafetyBufferBpsSource ?? "NO_ADDITIONAL_BUFFER")} · buffer{" "}
-          {String(current.minSafetyBufferBps ?? 0)} bps
+          Source {String(current.minSafetyBufferBpsSource ?? "NO_ADDITIONAL_BUFFER")} ·{" "}
+          {String(current.minSafetyBufferBps ?? 0)} bps. Saving requires proved ownership.
         </p>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={allowRepay} onChange={(event) => setAllowRepay(event.target.checked)} />
-          Allow REPAY_DEBT
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={allowAdd} onChange={(event) => setAllowAdd(event.target.checked)} />
-          Allow ADD_COLLATERAL
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="allow-repay"
+            checked={allowRepay}
+            onCheckedChange={(value) => setAllowRepay(value === true)}
+          />
+          <Label htmlFor="allow-repay">Allow REPAY_DEBT</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="allow-add"
+            checked={allowAdd}
+            onCheckedChange={(value) => setAllowAdd(value === true)}
+          />
+          <Label htmlFor="allow-add">Allow ADD_COLLATERAL</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="monitor-wallet"
             checked={Boolean(monitoring.data?.monitoringEnabled)}
             disabled={!owns || saveMonitor.isPending}
-            onChange={(event) => saveMonitor.mutate(event.target.checked)}
+            onCheckedChange={(value) => saveMonitor.mutate(value === true)}
           />
-          Monitor this wallet for relevant Moonwell changes
-        </label>
+          <Label htmlFor="monitor-wallet">Monitor this wallet</Label>
+        </div>
         {saveMonitor.error ? <ErrorState error={saveMonitor.error} title="Monitoring was not saved" /> : null}
         <div className="grid gap-2">
           <Label htmlFor="buffer-bps">Optional min safety buffer (bps)</Label>
@@ -92,15 +100,16 @@ export function PolicyForm({ address }: { address: string }) {
             inputMode="numeric"
             value={buffer}
             onChange={(event) => setBuffer(event.target.value)}
-            placeholder="leave empty for no additional buffer"
+            placeholder="leave empty"
             disabled={!owns}
           />
         </div>
         <Button onClick={() => save.mutate()} disabled={!owns || save.isPending}>
+          {save.isPending ? <Spinner /> : null}
           {owns ? "Save policy" : "Prove ownership to save"}
         </Button>
         {save.error ? <ErrorState error={save.error} title="Policy was not saved" /> : null}
-      </CardContent>
-    </Card>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

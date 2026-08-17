@@ -9,10 +9,11 @@ import { StatusBadge } from "@/components/status-badge";
 import { StrategiesPanel } from "@/components/strategies-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useProof, useSimulation, useStrategies } from "@/hooks/use-api";
 import { useSimulationStream } from "@/hooks/use-simulation-stream";
 import { PageHeader } from "@/components/page-header";
+import { PageLoading } from "@/components/loading-state";
 import { asString, shortenHex } from "@/lib/format";
 
 function agentRunIdFrom(run: { events: Array<{ data?: Record<string, unknown> }> }): string | undefined {
@@ -32,7 +33,9 @@ export function SimulationView({ id }: { id: string }) {
   const proof = useProof(id, proofReady);
   const strategies = useStrategies(id, Boolean(run?.includeStrategies) || finished);
 
-  if (simulation.isLoading) return <Skeleton className="h-64" />;
+  const running = run?.status === "QUEUED" || run?.status === "RUNNING";
+
+  if (simulation.isLoading) return <PageLoading label="Loading simulation" />;
   if (simulation.error) return <ErrorState error={simulation.error} title="Simulation not found" />;
   if (!run) return null;
 
@@ -83,7 +86,7 @@ export function SimulationView({ id }: { id: string }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SimulationTimeline events={run.events} />
+          <SimulationTimeline events={run.events} running={running} />
         </CardContent>
       </Card>
 
@@ -91,7 +94,12 @@ export function SimulationView({ id }: { id: string }) {
 
       <section className="grid gap-3">
         <h2 className="text-xl">Verified strategies</h2>
-        {strategies.isLoading ? <Skeleton className="h-32" /> : null}
+        {strategies.isLoading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner />
+            Loading strategies
+          </div>
+        ) : null}
         {strategies.error ? <ErrorState error={strategies.error} title="Strategies unavailable" /> : null}
         {strategies.data ? <StrategiesPanel payload={strategies.data.strategies} /> : null}
       </section>

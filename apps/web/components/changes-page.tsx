@@ -2,7 +2,7 @@
 
 import { IndexedChangesList } from "@/components/changes-list";
 import { ErrorState } from "@/components/error-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CardLoading } from "@/components/loading-state";
 import { useChange, useChanges } from "@/hooks/use-api";
 import { EvidenceList } from "@/components/evidence-list";
 import { StatusBadge } from "@/components/status-badge";
@@ -12,7 +12,7 @@ export function ChangesPage() {
   const changes = useChanges();
   return (
     <div className="grid gap-6">
-      {changes.isLoading ? <Skeleton className="h-40" /> : null}
+      {changes.isLoading ? <CardLoading label="Loading indexed changes" /> : null}
       {changes.error ? <ErrorState error={changes.error} title="Change index unavailable" /> : null}
       {changes.data ? <IndexedChangesList changes={changes.data.changes} /> : null}
     </div>
@@ -21,7 +21,7 @@ export function ChangesPage() {
 
 export function ChangeDetail({ id }: { id: string }) {
   const change = useChange(id);
-  if (change.isLoading) return <Skeleton className="h-48" />;
+  if (change.isLoading) return <CardLoading label="Loading change" />;
   if (change.error) return <ErrorState error={change.error} title="Change not found" />;
   if (!change.data) return null;
   const record = change.data;

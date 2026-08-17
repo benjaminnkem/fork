@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { formatTokenRaw } from "../lib/format";
+import { formatTimeAgo, formatTimestamp, formatTokenRaw, parseTime } from "../lib/format";
 
 describe("formatTokenRaw", () => {
   it("formats with integer division only", () => {
@@ -8,6 +8,13 @@ describe("formatTokenRaw", () => {
     expect(formatTokenRaw("1", 6)).toBe("0.000001");
     expect(formatTokenRaw("-1500000000000000000", 18)).toBe("-1.5");
     expect(formatTokenRaw("0", 18)).toBe("0");
+  });
+
+  it("formats timestamps with date-fns", () => {
+    const local = new Date(2026, 7, 17, 15, 4, 0);
+    expect(formatTimestamp(local)).toBe("Aug 17, 2026 · 15:04");
+    expect(parseTime(undefined)).toBeNull();
+    expect(formatTimeAgo(new Date())).toMatch(/ago|now/i);
   });
 });
 

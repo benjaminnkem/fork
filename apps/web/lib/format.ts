@@ -1,3 +1,5 @@
+import { format, formatDistanceToNow, fromUnixTime, isValid } from "date-fns";
+
 export function formatTokenRaw(raw: string, decimals: number, maxFrac = 6): string {
   const negative = raw.startsWith("-");
   const digits = negative ? raw.slice(1) : raw;
@@ -34,11 +36,33 @@ export function decimalMetadata(metadata: Record<string, unknown>): number {
   return decimals === undefined ? 18 : decimals;
 }
 
-export function formatTimestamp(value: string | Date | undefined): string {
-  if (!value) return "—";
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toISOString();
+export function parseTime(value: string | Date | number | undefined): Date | null {
+  if (value === undefined || value === null || value === "") return null;
+  if (value instanceof Date) return isValid(value) ? value : null;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const date = value > 1e12 ? new Date(value) : fromUnixTime(value);
+    return isValid(date) ? date : null;
+  }
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    return parseTime(Number(value));
+  }
+  if (typeof value === "string") {
+    const date = new Date(value);
+    return isValid(date) ? date : null;
+  }
+  return null;
+}
+
+export function formatTimestamp(value: string | Date | number | undefined): string {
+  const date = parseTime(value);
+  if (!date) return "—";
+  return format(date, "MMM d, yyyy · HH:mm");
+}
+
+export function formatTimeAgo(value: string | Date | number | undefined): string {
+  const date = parseTime(value);
+  if (!date) return "—";
+  return formatDistanceToNow(date, { addSuffix: true });
 }
 
 export function explorerTx(chainId: number, hash: string): string | undefined {

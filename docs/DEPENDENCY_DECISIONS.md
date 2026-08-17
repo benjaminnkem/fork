@@ -25,6 +25,7 @@ Recorded 2026-08-16 during Phase 0. Versions are current stables from npm at boo
 | @moonwell-fi/moonwell-sdk | 0.22.0 | current; used as a research source, not a runtime dep yet |
 | Playwright | 1.62.1 | Phase 9 browser E2E in `apps/web` |
 | express | 5.2.1 | Direct API dependency. `apps/api/src/main.ts` imports `json`/`urlencoded` for the 32kb body limit; pnpm isolation does not hoist the Nest transitive copy |
+| date-fns | 4.x | Web timestamps and relative times. No JS floats for token amounts. |
 | Tailwind | 4.3.3 | Phase 9 web app + shadcn/ui |
 
 ## Explicit non-choices

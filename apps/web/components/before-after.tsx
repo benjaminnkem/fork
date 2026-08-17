@@ -49,16 +49,14 @@ function SnapshotCard({ title, snapshot }: { title: string; snapshot: Snapshot }
       </CardHeader>
       <CardContent>
         {risk ? (
-          <dl className="grid gap-2 font-mono text-sm">
+          <dl className="grid gap-3 text-sm">
             <div>
               <dt className="text-muted-foreground">Liquidity</dt>
-              <dd>{formatTokenRaw(risk.liquidityRaw, 18)}</dd>
-              <dd className="text-xs text-muted-foreground">{risk.liquidityRaw}</dd>
+              <dd className="font-mono text-lg">{formatTokenRaw(risk.liquidityRaw, 18)}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Shortfall</dt>
-              <dd>{formatTokenRaw(risk.shortfallRaw, 18)}</dd>
-              <dd className="text-xs text-muted-foreground">{risk.shortfallRaw}</dd>
+              <dd className="font-mono text-lg">{formatTokenRaw(risk.shortfallRaw, 18)}</dd>
             </div>
           </dl>
         ) : (

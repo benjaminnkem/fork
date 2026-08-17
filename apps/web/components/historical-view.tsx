@@ -5,15 +5,17 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
+import { CardLoading } from "@/components/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useHistoricalReplays } from "@/hooks/use-api";
 import { normalizeAddress, runHistoricalReplay } from "@/lib/api";
-import { DEMO_WALLET, DEMO_WALLET_TITLE } from "@/lib/demo";
+import { DEMO_WALLET, SHORTFALL_DEMO_WALLET } from "@/lib/demo";
 import { shortenHex } from "@/lib/format";
 
 export function HistoricalView() {
@@ -37,13 +39,13 @@ export function HistoricalView() {
     onSuccess: (run) => router.push(`/simulations/${run.id}`),
   });
 
-  if (replays.isLoading) return <Skeleton className="h-48" />;
+  if (replays.isLoading) return <CardLoading label="Loading pinned replays" />;
   if (replays.error) return <ErrorState error={replays.error} title="Historical catalog unavailable" />;
   if (!replays.data || replays.data.length === 0) {
     return (
       <EmptyState
         title="No pinned historical replays"
-        description="Fork only lists real, documented scenarios. Nothing is invented here."
+        description="Fork only lists real, documented scenarios."
       />
     );
   }
@@ -58,7 +60,7 @@ export function HistoricalView() {
               <Badge variant="outline">{replay.replayGrade}</Badge>
             </CardTitle>
             <CardDescription>
-              Proposal {replay.proposalId} at Base {replay.forkBlockNumber} /{" "}
+              Proposal {replay.proposalId} · Base block {replay.forkBlockNumber} ·{" "}
               {shortenHex(replay.forkBlockHash, 10, 8)}
             </CardDescription>
           </CardHeader>
@@ -72,23 +74,23 @@ export function HistoricalView() {
                 placeholder="defaults to the pinned replay wallet"
                 className="font-mono"
               />
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => setWallet(DEMO_WALLET)}
-              >
-                Prefill {DEMO_WALLET_TITLE.toLowerCase()}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="secondary" size="sm" onClick={() => setWallet(SHORTFALL_DEMO_WALLET)}>
+                  Prefill shortfall demo
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => setWallet(DEMO_WALLET)}>
+                  Prefill solvent demo
+                </Button>
+              </div>
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id={`strategies-${replay.slug}`}
                 checked={includeStrategies}
-                onChange={(event) => setIncludeStrategies(event.target.checked)}
+                onCheckedChange={(value) => setIncludeStrategies(value === true)}
               />
-              Verify strategy branches
-            </label>
+              <Label htmlFor={`strategies-${replay.slug}`}>Search rescue branches</Label>
+            </div>
             <Button
               onClick={() => {
                 setFormError(null);
@@ -101,7 +103,14 @@ export function HistoricalView() {
               }}
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? "Queuing…" : "Run pinned replay"}
+              {mutation.isPending ? (
+                <>
+                  <Spinner />
+                  Queuing…
+                </>
+              ) : (
+                "Run pinned replay"
+              )}
             </Button>
             {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
             {mutation.error ? <ErrorState error={mutation.error} title="Replay was not queued" /> : null}

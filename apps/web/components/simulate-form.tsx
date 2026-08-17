@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { ErrorState } from "@/components/error-state";
 import { createImpact } from "@/lib/api";
 
@@ -30,32 +33,33 @@ export function SimulateForm({
   });
 
   return (
-    <Card>
+    <Card className="ring-primary/15">
       <CardHeader>
-        <CardTitle>Simulate impact</CardTitle>
+        <CardTitle>Simulate proposal 176</CardTitle>
         <CardDescription>
-          Queues a DESTINATION_EFFECT_REPLAY of the pinned Moonwell change on a real Anvil fork.
-          Results come from the worker, not from this page.
+          Replays the mwrsETH collateral-factor change on a real Anvil fork. Live risk above is
+          current head, not the 176 result.
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-3">
-        {changeId ? (
-          <p className="font-mono text-xs text-muted-foreground">{changeId}</p>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            No change selected. The API will use the pinned moonwell-176 scenario.
-          </p>
-        )}
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
+      <CardContent className="grid gap-4">
+        {changeId ? <p className="font-mono text-xs text-muted-foreground">{changeId}</p> : null}
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="include-strategies"
             checked={includeStrategies}
-            onChange={(event) => setIncludeStrategies(event.target.checked)}
+            onCheckedChange={(value) => setIncludeStrategies(value === true)}
           />
-          Verify REPAY_DEBT and ADD_COLLATERAL branches
-        </label>
+          <Label htmlFor="include-strategies">Also search repay / add-collateral</Label>
+        </div>
         <Button size="lg" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
-          {mutation.isPending ? "Queuing…" : "Launch simulation"}
+          {mutation.isPending ? (
+            <>
+              <Spinner />
+              Queuing…
+            </>
+          ) : (
+            "Launch simulation"
+          )}
         </Button>
         {mutation.error ? <ErrorState error={mutation.error} title="Simulation was not queued" /> : null}
       </CardContent>
