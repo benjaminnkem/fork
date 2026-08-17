@@ -165,6 +165,12 @@ export class ExecutionService {
       throw new ForkError("NO_RELEVANT_EXPOSURE", "Live wallet is no longer exposed to this change");
     }
     const decodedCalls = assertAllowlistedPlan(live.plan);
+    for (const call of live.plan.calls) {
+      const code = await base.client.getCode({ address: call.to });
+      if (!code || code === "0x") {
+        throw new ForkError("RPC_INCONSISTENT_STATE", `Target ${call.to} has no bytecode`);
+      }
+    }
     const dryRun = await this.dryRun(live.plan, input.wallet);
     if (!dryRun.ok) {
       throw new ForkError("CHANGE_REPLAY_REVERTED", dryRun.reason ?? "Live-head dry-run reverted");

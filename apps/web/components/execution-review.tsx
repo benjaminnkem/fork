@@ -83,6 +83,12 @@ export function ExecutionReview({
           Switch to Base Mainnet
         </Button>
       ) : null}
+      {isConnected && address && address.toLowerCase() !== wallet.toLowerCase() ? (
+        <EmptyState
+          title="Connected wallet changed"
+          description="The connected account is not the simulation wallet. Switch back before signing. Fork will not send from a different address."
+        />
+      ) : null}
 
       <Card>
         <CardHeader>

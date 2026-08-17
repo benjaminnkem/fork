@@ -27,6 +27,20 @@ describe("assertAllowlistedPlan", () => {
     expect(decoded.every((call) => call.spender === undefined || call.spender === market)).toBe(true);
   });
 
+  it("rejects unlimited approvals", () => {
+    const plan = buildRepayPlan({
+      wallet,
+      market,
+      underlying,
+      amountRaw: (1n << 256n) - 1n,
+      boundRaw: (1n << 256n) - 1n,
+      allowanceRaw: 0n,
+      collateralEnabled: true,
+      policy: createUserRiskPolicy(),
+    });
+    expect(() => assertAllowlistedPlan(plan)).toThrow(/Unlimited approvals/);
+  });
+
   it("rejects arbitrary calldata", () => {
     const plan = buildRepayPlan({
       wallet,

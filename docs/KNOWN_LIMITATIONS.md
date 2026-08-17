@@ -26,3 +26,7 @@
 - Playwright live UI E2E requires `RUN_WEB_E2E=1` plus running API, simulator, Mongo, Redis, and archive RPC. Default Playwright covers the static/error paths only.
 - The indexer writes cursors and change status to `.data/governance-store.json` and metrics to `.data/monitoring-metrics.json`. Auto-enqueue of impact jobs requires Mongo, Redis, and `monitoringEnabled` on the wallet. Only proposal 176 is auto-simulated.
 - Destination execution is inferred from live Comptroller `markets()` matching the decoded CF target, not from a Wormhole VAA.
+- Production still creates Mongo indexes at process start. That is acceptable for V1; do not expose Mongo/Redis publicly.
+- Groq readiness is configuration presence, not a live ping on every `/health/ready` (that would burn rate limits). A Groq outage fails the agent closed; it does not invent numbers.
+- Impact queue inflight is capped at 16. Additional creates return 503 / are skipped by the indexer.
+- Anvil is killed as a process group on stop/shutdown. A host `kill -9` of the Node process can still leave an Anvil child until the OS reaps it.

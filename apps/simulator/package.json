@@ -20,7 +20,8 @@
     "@fork/shared": "workspace:*",
     "@fork/simulation-core": "workspace:*",
     "bullmq": "6.1.2",
-    "ioredis": "^5.8.2"
+    "ioredis": "^5.8.2",
+    "viem": "^2.55.16"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

@@ -37,6 +37,17 @@ export interface AnvilInstance {
   client: AnvilClient;
 }
 
+const liveAnvils = new Set<AnvilInstance>();
+
+export function liveAnvilCount(): number {
+  return liveAnvils.size;
+}
+
+export function hashesEqual(left: string | null | undefined, right: string | null | undefined): boolean {
+  if (!left || !right) return false;
+  return left.toLowerCase() === right.toLowerCase();
+}
+
 function createAnvilClient(rpcUrl: string): AnvilClient {
   return createTestClient({
     chain: base,
@@ -93,13 +104,11 @@ export async function startAnvilFork(input: {
       input.forkBlockNumber.toString(),
       "--no-rate-limit",
     ],
-    { stdio: ["ignore", "pipe", "pipe"] },
+    { stdio: ["ignore", "pipe", "pipe"], detached: process.platform !== "win32" },
   );
 
   const stop = () => {
-    if (!child.killed) {
-      child.kill("SIGTERM");
-    }
+    killAnvilProcess(child);
   };
 
   try {
@@ -116,10 +125,15 @@ export async function startAnvilFork(input: {
           throw new ForkError("RPC_INCONSISTENT_STATE", `Anvil chain ${chainId} is not Base`);
         }
         const block = await client.getBlock({ blockNumber: input.forkBlockNumber });
-        if (block.hash !== input.expectedBlockHash) {
+        if (!hashesEqual(block.hash, input.expectedBlockHash)) {
           throw new ForkError("RPC_INCONSISTENT_STATE", "Anvil fork block hash does not match pin");
         }
-        return { port, host: input.host, rpcUrl, process: child, client };
+        const instance = { port, host: input.host, rpcUrl, process: child, client };
+        liveAnvils.add(instance);
+        child.once("exit", () => {
+          liveAnvils.delete(instance);
+        });
+        return instance;
       } catch (error) {
         if (error instanceof ForkError) {
           throw error;
@@ -135,20 +149,48 @@ export async function startAnvilFork(input: {
   }
 }
 
+function killAnvilProcess(child: ChildProcess): void {
+  if (child.killed || child.exitCode !== null) return;
+  if (process.platform !== "win32" && child.pid) {
+    try {
+      process.kill(-child.pid, "SIGTERM");
+      return;
+    } catch {
+      child.kill("SIGTERM");
+      return;
+    }
+  }
+  child.kill("SIGTERM");
+}
+
 export async function stopAnvil(instance: AnvilInstance): Promise<void> {
   const child = instance.process;
   if (child.killed || child.exitCode !== null) {
+    liveAnvils.delete(instance);
     return;
   }
   await new Promise<void>((resolve) => {
     const timer = setTimeout(() => {
-      child.kill("SIGKILL");
+      if (process.platform !== "win32" && child.pid) {
+        try {
+          process.kill(-child.pid, "SIGKILL");
+        } catch {
+          child.kill("SIGKILL");
+        }
+      } else {
+        child.kill("SIGKILL");
+      }
       resolve();
     }, 2000);
     child.once("exit", () => {
       clearTimeout(timer);
+      liveAnvils.delete(instance);
       resolve();
     });
-    child.kill("SIGTERM");
+    killAnvilProcess(child);
   });
+}
+
+export async function stopAllAnvils(): Promise<void> {
+  await Promise.all([...liveAnvils].map((instance) => stopAnvil(instance)));
 }

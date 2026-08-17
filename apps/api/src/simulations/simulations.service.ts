@@ -35,6 +35,7 @@ import { createUserRiskPolicy } from "@fork/risk-engine";
 import { simulationIdempotencyKey } from "@fork/simulation-core";
 import {
   BASE_CHAIN_ID,
+  IMPACT_QUEUE_MAX_INFLIGHT,
   IMPACT_SIMULATION_QUEUE,
   type Address,
   type ImpactSimulationJob,
@@ -133,6 +134,14 @@ export class SimulationsService {
 
   private async ensureQueued(run: SimulationRunRecord, payload: ImpactSimulationJob) {
     const queue = this.queue!;
+    const counts = await queue.getJobCounts("waiting", "delayed", "active");
+    const inflight = (counts.waiting ?? 0) + (counts.delayed ?? 0) + (counts.active ?? 0);
+    if (inflight >= IMPACT_QUEUE_MAX_INFLIGHT) {
+      throw new ServiceUnavailableException({
+        code: "RATE_LIMITED",
+        message: "Impact simulation queue is at capacity",
+      });
+    }
     const jobId = run.idempotencyKey.replaceAll(":", "-");
     const existingJob = await queue.getJob(jobId);
     if (existingJob) {

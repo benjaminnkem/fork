@@ -1,6 +1,6 @@
 # Implementation status
 
-**Phase:** 12 — Hardened moonwell-176 replay  
+**Phase:** 13 — Security and resilience hardening  
 **Date:** 2026-08-16
 
 ## Done
@@ -42,6 +42,7 @@
 - Indexer poll loop persists Ethereum and Base cursors, detects reorgs, refreshes governor and destination CF status, marks stale/cancelled open simulations, and enqueues the pinned moonwell-176 impact job only for monitored wallets with relevant exposure.
 - `GET /api/v1/monitoring` exposes index lag, last tick, reorg flags, and queue age. The UI shows lag and a wallet-level monitor toggle.
 - Public replay manifest `replays/moonwell-176.json` stores identifiers and anchors only. `pnpm replay:verify` / `pnpm receipt:reproduce` recomputes the receipt from archive RPC + Anvil on a fresh checkout. It does not require a previously saved result file.
+- Hardening: Anvil process-group cleanup, case-insensitive fork hashes, impact job schema checks, queue backpressure, 32kb JSON body limit, exact-approval only (no max uint), live bytecode check before prepare, untrusted user/tool data wrapping for Groq, and wallet-switch refusal in the execution UI.
 
 ## Not done (by design)
 - Email/Telegram notifications are not added.

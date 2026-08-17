@@ -4,5 +4,5 @@ export { ScriptedModelProvider, type ModelProvider } from "./provider.js";
 export { authorizeToolCall } from "./policy.js";
 export { createAgentSession, type AgentSession } from "./session.js";
 export { runAgent, type AgentRequest, type AgentResult } from "./loop.js";
-export { sanitizeUserText, type AgentTraceEvent } from "./trace.js";
+export { sanitizeUserText, wrapUntrusted, type AgentTraceEvent } from "./trace.js";
 export { TOOL_SPECS } from "./tools.js";

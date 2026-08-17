@@ -6,7 +6,7 @@ Autonomous DeFi pre-execution risk agent. It applies a known protocol change to 
 
 V1 scope: Moonwell Core on Base Mainnet. Moonwell is adapter #1, not the product.
 
-This repository is in **Phase 12**: the public moonwell-176 replay is a committed-anchor path. A fresh checkout recomputes the receipt from archive RPC; it does not replay saved numbers.
+This repository is in **Phase 13**: security and resilience hardening is in place on top of the reproducible moonwell-176 path. Email/Telegram notifications and a product safety-buffer default remain out of V1.
 
 ## Prerequisites
 

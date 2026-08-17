@@ -13,7 +13,12 @@ import {
 } from "@fork/protocol-moonwell";
 import { createUserRiskPolicy } from "@fork/risk-engine";
 import { simulationIdempotencyKey } from "@fork/simulation-core";
-import { IMPACT_SIMULATION_QUEUE, type Address, type ImpactSimulationJob } from "@fork/shared";
+import {
+  IMPACT_QUEUE_MAX_INFLIGHT,
+  IMPACT_SIMULATION_QUEUE,
+  type Address,
+  type ImpactSimulationJob,
+} from "@fork/shared";
 import { impactJobId } from "@fork/governance-core";
 
 export async function enqueuePinnedImpact(input: {
@@ -53,6 +58,11 @@ export async function enqueuePinnedImpact(input: {
     includeStrategies: true,
     events: [createEvent("SIMULATION_QUEUED")],
   });
+  const counts = await input.queue.getJobCounts("waiting", "delayed", "active");
+  const inflight = (counts.waiting ?? 0) + (counts.delayed ?? 0) + (counts.active ?? 0);
+  if (inflight >= IMPACT_QUEUE_MAX_INFLIGHT) {
+    return "skipped";
+  }
   const jobId = impactJobId(wallet, changeId);
   const existingJob = await input.queue.getJob(jobId);
   if (existingJob) {

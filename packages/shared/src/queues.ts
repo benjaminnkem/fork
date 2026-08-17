@@ -11,6 +11,7 @@ export const QUEUE_NAMES = [
 export type QueueName = (typeof QUEUE_NAMES)[number];
 
 export const IMPACT_SIMULATION_QUEUE = "impact-simulation" satisfies QueueName;
+export const IMPACT_QUEUE_MAX_INFLIGHT = 16;
 export const STRATEGY_SIMULATION_QUEUE = "strategy-simulation" satisfies QueueName;
 export const AGENT_ANALYSIS_QUEUE = "agent-analysis" satisfies QueueName;
 export const GOVERNANCE_SYNC_QUEUE = "governance-sync" satisfies QueueName;

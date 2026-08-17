@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
+import { json, urlencoded } from "express";
 import { loadConfig, loadRootEnv } from "@fork/config";
 import { createLogger } from "@fork/observability";
 import { AppModule } from "./app.module.js";
@@ -10,6 +11,8 @@ async function bootstrap() {
   const config = loadConfig();
   const logger = createLogger({ name: "api", service: "api", level: config.LOG_LEVEL });
   const app = await NestFactory.create(AppModule, { logger: ["error", "warn", "log"] });
+  app.use(json({ limit: "32kb" }));
+  app.use(urlencoded({ extended: false, limit: "32kb" }));
   app.enableShutdownHooks();
   app.useGlobalFilters(new ForkExceptionFilter());
   app.useGlobalInterceptors(new JsonSafeInterceptor());

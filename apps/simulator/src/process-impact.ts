@@ -12,7 +12,34 @@ import {
   replayPinnedCollateralFactor,
 } from "@fork/protocol-moonwell";
 import { hashReceipt } from "@fork/simulation-core";
+import { getAddress, isAddress } from "viem";
 import { ETHEREUM_CHAIN_ID, ForkError, type ImpactSimulationJob } from "@fork/shared";
+
+export function parseImpactSimulationJob(value: unknown): ImpactSimulationJob {
+  if (!value || typeof value !== "object") {
+    throw new ForkError("INVALID_CONFIG", "Impact job payload is not an object");
+  }
+  const record = value as Record<string, unknown>;
+  if (typeof record.simulationRunId !== "string" || record.simulationRunId.length < 8) {
+    throw new ForkError("INVALID_CONFIG", "Impact job simulationRunId is invalid");
+  }
+  if (typeof record.wallet !== "string" || !isAddress(record.wallet)) {
+    throw new ForkError("INVALID_CONFIG", "Impact job wallet is invalid");
+  }
+  if (typeof record.changeId !== "string" || !record.changeId.startsWith("moonwell:")) {
+    throw new ForkError("INVALID_CONFIG", "Impact job changeId is not a Moonwell change");
+  }
+  if (record.scenario !== undefined && record.scenario !== "moonwell-176") {
+    throw new ForkError("UNSUPPORTED_PROTOCOL_CHANGE", "Only moonwell-176 impact jobs are supported");
+  }
+  return {
+    simulationRunId: record.simulationRunId,
+    wallet: getAddress(record.wallet),
+    changeId: record.changeId,
+    scenario: typeof record.scenario === "string" ? record.scenario : "moonwell-176",
+    includeStrategies: Boolean(record.includeStrategies),
+  };
+}
 
 export async function processImpactSimulation(
   models: PersistenceModels,
@@ -23,8 +50,14 @@ export async function processImpactSimulation(
   if (!run) {
     throw new ForkError("SIMULATION_STALE", `Unknown simulation run ${job.simulationRunId}`);
   }
-  if (run.status === "COMPLETED" || run.status === "FAILED") {
+  if (run.status === "COMPLETED" || run.status === "FAILED" || run.status === "CANCELLED" || run.status === "STALE") {
     return;
+  }
+  if (run.wallet.toLowerCase() !== job.wallet.toLowerCase()) {
+    throw new ForkError("SIMULATION_STALE", "Impact job wallet does not match the persisted run");
+  }
+  if (run.protocolChangeId !== job.changeId) {
+    throw new ForkError("SIMULATION_STALE", "Impact job change does not match the persisted run");
   }
 
   await appendRunEvent(models, run.id, createEvent("FORK_STARTING"), {

@@ -8,8 +8,9 @@ import {
   disconnectMongo,
   ensureMongoIndexes,
 } from "@fork/persistence";
+import { stopAllAnvils } from "@fork/simulation-core";
 import { ForkError, IMPACT_SIMULATION_QUEUE, type ImpactSimulationJob } from "@fork/shared";
-import { processImpactSimulation } from "./process-impact.js";
+import { parseImpactSimulationJob, processImpactSimulation } from "./process-impact.js";
 
 loadRootEnv();
 const config = loadConfig();
@@ -34,7 +35,7 @@ const worker = new Worker<ImpactSimulationJob>(
   IMPACT_SIMULATION_QUEUE,
   async (job) => {
     logger.info({ jobId: job.id, runId: job.data.simulationRunId }, "impact job started");
-    await processImpactSimulation(models, config, job.data);
+    await processImpactSimulation(models, config, parseImpactSimulationJob(job.data));
   },
   {
     connection: redis,
@@ -63,6 +64,7 @@ async function shutdown(signal: string) {
   logger.info({ signal }, "simulator shutting down");
   await worker.close();
   await inspect.close();
+  await stopAllAnvils();
   await redis.quit();
   await disconnectMongo(connection);
   process.exit(0);

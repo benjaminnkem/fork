@@ -1,4 +1,12 @@
-export { startAnvilFork, stopAnvil, reserveAnvilPort, type AnvilInstance } from "./anvil.js";
+export {
+  startAnvilFork,
+  stopAnvil,
+  stopAllAnvils,
+  reserveAnvilPort,
+  liveAnvilCount,
+  hashesEqual,
+  type AnvilInstance,
+} from "./anvil.js";
 export {
   impersonateAndFund,
   impersonateForGas,

@@ -75,6 +75,9 @@ export function decodePlannedCall(call: PlannedCall, plan: TransactionPlan): Dec
     if (call.allowlistRuleId === ALLOWLIST_ERC20_APPROVE_EXACT && amount !== plan.amountRaw) {
       throw new ForkError("STRATEGY_POLICY_REJECTED", "Exact approval must match the plan amount");
     }
+    if (amount === (1n << 256n) - 1n) {
+      throw new ForkError("STRATEGY_POLICY_REJECTED", "Unlimited approvals are not allowed");
+    }
     return {
       to: asAddress(call.to),
       value: "0",
@@ -161,6 +164,10 @@ export function assertAllowlistedPlan(plan: TransactionPlan): DecodedPlannedCall
   }
   if (plan.amountRaw <= 0n) {
     throw new ForkError("STRATEGY_POLICY_REJECTED", "Plan amount must be positive");
+  }
+  const maxUint = (1n << 256n) - 1n;
+  if (plan.amountRaw === maxUint) {
+    throw new ForkError("STRATEGY_POLICY_REJECTED", "Unlimited approvals are not allowed");
   }
   if (plan.calls.length === 0) {
     throw new ForkError("STRATEGY_POLICY_REJECTED", "Plan has no calls");
