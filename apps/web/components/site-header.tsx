@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ConnectWallet } from "@/components/connect-wallet";
+import { ForkMark } from "@/components/fork-mark";
 import { Badge } from "@/components/ui/badge";
 import { useHealth, useMonitoring } from "@/hooks/use-api";
+import { cn } from "@/lib/utils";
+
+const NAV = [
+  { href: "/", label: "Analyze" },
+  { href: "/changes", label: "Changes" },
+  { href: "/historical", label: "Historical" },
+];
 
 export function SiteHeader() {
+  const pathname = usePathname();
   const health = useHealth();
   const monitoring = useMonitoring();
   const status = health.data?.status ?? (health.isError ? "down" : "checking");
@@ -14,25 +24,34 @@ export function SiteHeader() {
     monitoring.data?.indexer?.ethereum?.reorgDetected || monitoring.data?.indexer?.base?.reorgDetected;
 
   return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="font-heading text-lg tracking-tight">
-            Fork
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 text-foreground">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <ForkMark className="size-4" />
+            </span>
+            <span className="font-heading text-lg tracking-tight">Fork</span>
           </Link>
-          <nav aria-label="Primary" className="flex items-center gap-3 text-sm text-muted-foreground sm:gap-4">
-            <Link href="/" className="hover:text-foreground">
-              Analyze
-            </Link>
-            <Link href="/changes" className="hover:text-foreground">
-              Changes
-            </Link>
-            <Link href="/historical" className="hover:text-foreground">
-              Historical
-            </Link>
+          <nav aria-label="Primary" className="flex items-center gap-1 text-sm">
+            {NAV.map((item) => {
+              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "rounded-md px-2.5 py-1.5 transition-colors",
+                    active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:justify-end">
           <Badge variant={status === "ok" ? "default" : status === "degraded" ? "secondary" : "outline"}>
             API {status}
           </Badge>
@@ -41,7 +60,9 @@ export function SiteHeader() {
               {reorg ? "reorg" : `index +${lag}`}
             </Badge>
           ) : null}
-          <ConnectWallet />
+          <div className="ml-auto sm:ml-0">
+            <ConnectWallet />
+          </div>
         </div>
       </div>
     </header>

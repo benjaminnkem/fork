@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProof, useSimulation, useStrategies } from "@/hooks/use-api";
 import { useSimulationStream } from "@/hooks/use-simulation-stream";
+import { PageHeader } from "@/components/page-header";
 import { asString, shortenHex } from "@/lib/format";
 
 function agentRunIdFrom(run: { events: Array<{ data?: Record<string, unknown> }> }): string | undefined {
@@ -37,13 +38,17 @@ export function SimulationView({ id }: { id: string }) {
 
   return (
     <div className="grid gap-6">
-      <section className="grid gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="font-heading text-3xl tracking-tight">Simulation</h1>
-          <StatusBadge value={run.status} kind="run" />
-        </div>
-        <p className="font-mono text-sm text-muted-foreground">{run.id}</p>
-        <dl className="grid gap-2 text-sm sm:grid-cols-2">
+      <PageHeader
+        eyebrow="Impact run"
+        title={
+          <span className="inline-flex flex-wrap items-center gap-3">
+            Simulation
+            <StatusBadge value={run.status} kind="run" />
+          </span>
+        }
+        description={<span className="font-mono text-xs">{run.id}</span>}
+      />
+      <dl className="grid gap-3 rounded-xl border border-border bg-card/60 p-4 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-muted-foreground">Wallet</dt>
             <dd>
@@ -65,11 +70,10 @@ export function SimulationView({ id }: { id: string }) {
             <dd className="font-mono">{shortenHex(run.forkBlockHash, 10, 8)}</dd>
           </div>
         </dl>
-        {run.errorCode ? <ErrorState error={{ message: run.errorCode }} title="Run failed" /> : null}
-        {run.status === "CANCELLED" ? (
-          <ErrorState error={{ message: "This simulation was cancelled." }} title="Cancelled" />
-        ) : null}
-      </section>
+      {run.errorCode ? <ErrorState error={{ message: run.errorCode }} title="Run failed" /> : null}
+      {run.status === "CANCELLED" ? (
+        <ErrorState error={{ message: "This simulation was cancelled." }} title="Cancelled" />
+      ) : null}
 
       <Card>
         <CardHeader>

@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </a>
         <Providers>
           <SiteHeader />
-          <main id="main" className="mx-auto w-full max-w-6xl px-4 py-8">
+          <main id="main" className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
             {children}
           </main>
         </Providers>

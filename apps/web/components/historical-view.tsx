@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHistoricalReplays } from "@/hooks/use-api";
 import { normalizeAddress, runHistoricalReplay } from "@/lib/api";
+import { DEMO_WALLET, DEMO_WALLET_TITLE } from "@/lib/demo";
 import { shortenHex } from "@/lib/format";
 
 export function HistoricalView() {
@@ -69,7 +70,16 @@ export function HistoricalView() {
                 value={wallet}
                 onChange={(event) => setWallet(event.target.value)}
                 placeholder="defaults to the pinned replay wallet"
+                className="font-mono"
               />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setWallet(DEMO_WALLET)}
+              >
+                Prefill {DEMO_WALLET_TITLE.toLowerCase()}
+              </Button>
             </div>
             <label className="flex items-center gap-2 text-sm">
               <input

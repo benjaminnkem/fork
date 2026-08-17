@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type AnalysisSource = "paste" | "connected" | null;
+type AnalysisSource = "paste" | "connected" | "demo" | null;
 
 interface AnalysisState {
   lastAddress: string | null;

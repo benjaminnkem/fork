@@ -54,10 +54,7 @@ export function SimulateForm({
           />
           Verify REPAY_DEBT and ADD_COLLATERAL branches
         </label>
-        <Button
-          onClick={() => mutation.mutate()}
-          disabled={mutation.isPending}
-        >
+        <Button size="lg" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
           {mutation.isPending ? "Queuing…" : "Launch simulation"}
         </Button>
         {mutation.error ? <ErrorState error={mutation.error} title="Simulation was not queued" /> : null}

@@ -15,10 +15,14 @@ describe("product copy", () => {
   it("does not ship placeholder financial figures", () => {
     const home = readFileSync(new URL("./page.tsx", import.meta.url), "utf8");
     const view = readFileSync(new URL("../components/home-view.tsx", import.meta.url), "utf8");
-    const combined = `${home}\n${view}`;
+    const form = readFileSync(new URL("../components/address-form.tsx", import.meta.url), "utf8");
+    const demo = readFileSync(new URL("../lib/demo.ts", import.meta.url), "utf8");
+    const combined = `${home}\n${view}\n${form}`;
     expect(combined).not.toMatch(/health factor|\$1,234|99\.99%/i);
     expect(view).toContain(
       "No dashboard numbers are shown until the API returns a real wallet snapshot",
     );
+    expect(form).toContain("Use demo wallet");
+    expect(demo).toContain("0x494c7fdb753c15b69fea2293e1b76567ca94462d");
   });
 });
