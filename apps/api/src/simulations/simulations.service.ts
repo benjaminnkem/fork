@@ -45,6 +45,13 @@ import {
 import { APP_CONFIG } from "../config.token.js";
 import { IMPACT_QUEUE, PERSISTENCE } from "../persistence.token.js";
 
+function isDuplicateKeyError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const record = error as { code?: unknown; message?: unknown };
+  if (record.code === 11000) return true;
+  return typeof record.message === "string" && record.message.includes("E11000");
+}
+
 @Injectable()
 export class SimulationsService {
   constructor(
@@ -91,59 +98,74 @@ export class SimulationsService {
       policyVersion: policy.policyVersion,
       engineVersion: this.config.APP_VERSION,
     });
-    const existing = await findRunByIdempotencyKey(models, idempotencyKey);
-    if (existing && existing.status === "COMPLETED") {
-      return existing;
-    }
-    if (existing && (existing.status === "FAILED" || existing.status === "STALE" || existing.status === "CANCELLED")) {
-      const reset = await requeueSimulationRun(models, existing.id, {
-        includeStrategies: Boolean(input.includeStrategies),
-      });
-      const run = reset ?? existing;
-      await this.ensureQueued(run, {
-        simulationRunId: run.id,
-        wallet,
-        changeId,
-        scenario,
-        includeStrategies: Boolean(input.includeStrategies),
-      });
-      return run;
-    }
-    if (existing) {
-      await this.ensureQueued(existing, {
-        simulationRunId: existing.id,
-        wallet,
-        changeId,
-        scenario,
-        includeStrategies: Boolean(input.includeStrategies),
-      });
-      return existing;
-    }
-
-    const queued = createEvent("SIMULATION_QUEUED");
-    const run = await insertSimulationRun(models, {
-      wallet,
-      protocolChangeId: changeId,
-      mode: "impact",
-      status: "QUEUED",
-      replayGrade: "DESTINATION_EFFECT_REPLAY",
-      idempotencyKey,
-      engineVersion: this.config.APP_VERSION,
-      policyVersion: policy.policyVersion,
-      forkBlockNumber: PINNED_REPLAY_FORK_BLOCK.toString(),
-      forkBlockHash: PINNED_REPLAY_FORK_HASH,
-      scenario,
-      includeStrategies: Boolean(input.includeStrategies),
-      events: [queued],
-    });
-
-    await this.ensureQueued(run, {
-      simulationRunId: run.id,
+    const job = {
       wallet,
       changeId,
       scenario,
       includeStrategies: Boolean(input.includeStrategies),
-    });
+    };
+    const existing = await findRunByIdempotencyKey(models, idempotencyKey);
+    if (existing) {
+      return this.resumeExistingRun(models, existing, job);
+    }
+
+    try {
+      const queued = createEvent("SIMULATION_QUEUED");
+      const run = await insertSimulationRun(models, {
+        wallet,
+        protocolChangeId: changeId,
+        mode: "impact",
+        status: "QUEUED",
+        replayGrade: "DESTINATION_EFFECT_REPLAY",
+        idempotencyKey,
+        engineVersion: this.config.APP_VERSION,
+        policyVersion: policy.policyVersion,
+        forkBlockNumber: PINNED_REPLAY_FORK_BLOCK.toString(),
+        forkBlockHash: PINNED_REPLAY_FORK_HASH,
+        scenario,
+        includeStrategies: job.includeStrategies,
+        events: [queued],
+      });
+      await this.ensureQueued(run, {
+        simulationRunId: run.id,
+        ...job,
+      });
+      return run;
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+      const raced = await findRunByIdempotencyKey(models, idempotencyKey);
+      if (!raced) throw error;
+      return this.resumeExistingRun(models, raced, job);
+    }
+  }
+
+  private async resumeExistingRun(
+    models: PersistenceModels,
+    existing: SimulationRunRecord,
+    job: {
+      wallet: Address;
+      changeId: string;
+      scenario: string;
+      includeStrategies: boolean;
+    },
+  ): Promise<SimulationRunRecord> {
+    let run = existing;
+    if (
+      existing.status === "FAILED" ||
+      existing.status === "STALE" ||
+      existing.status === "CANCELLED"
+    ) {
+      run =
+        (await requeueSimulationRun(models, existing.id, {
+          includeStrategies: job.includeStrategies,
+        })) ?? existing;
+    }
+    if (run.status !== "COMPLETED") {
+      await this.ensureQueued(run, {
+        simulationRunId: run.id,
+        ...job,
+      });
+    }
     return run;
   }
 
