@@ -5,6 +5,7 @@ import {
   createEvent,
   findRunByIdempotencyKey,
   insertSimulationRun,
+  requeueSimulationRun,
 } from "@fork/persistence";
 import {
   PINNED_BASE_CF_PROPOSAL_ID,
@@ -40,10 +41,13 @@ export async function enqueuePinnedImpact(input: {
     engineVersion: input.engineVersion,
   });
   const existing = await findRunByIdempotencyKey(input.models, idempotencyKey);
-  if (existing && existing.status !== "FAILED") {
+  if (existing && existing.status !== "FAILED" && existing.status !== "STALE" && existing.status !== "CANCELLED") {
     return "existing";
   }
-  const run = await insertSimulationRun(input.models, {
+  const run =
+    existing && (existing.status === "FAILED" || existing.status === "STALE" || existing.status === "CANCELLED")
+      ? ((await requeueSimulationRun(input.models, existing.id, { includeStrategies: true })) ?? existing)
+      : await insertSimulationRun(input.models, {
     wallet,
     protocolChangeId: changeId,
     mode: "impact",

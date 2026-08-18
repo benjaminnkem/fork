@@ -94,6 +94,38 @@ export async function findRunByIdempotencyKey(
   return doc ? toRun(doc) : undefined;
 }
 
+export async function requeueSimulationRun(
+  models: PersistenceModels,
+  id: string,
+  patch?: { includeStrategies?: boolean },
+): Promise<SimulationRunRecord | undefined> {
+  const queued = createEvent("SIMULATION_QUEUED");
+  const doc = await models.simulationRuns
+    .findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          status: "QUEUED",
+          ...(patch?.includeStrategies !== undefined
+            ? { includeStrategies: patch.includeStrategies }
+            : {}),
+        },
+        $unset: {
+          receiptHash: 1,
+          before: 1,
+          after: 1,
+          errorCode: 1,
+          startedAt: 1,
+          completedAt: 1,
+        },
+        $push: { events: queued },
+      },
+      { returnDocument: "after" },
+    )
+    .lean();
+  return doc ? toRun(doc) : undefined;
+}
+
 export async function appendRunEvent(
   models: PersistenceModels,
   id: string,

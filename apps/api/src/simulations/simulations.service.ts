@@ -20,6 +20,7 @@ import {
   findRunById,
   findRunByIdempotencyKey,
   insertSimulationRun,
+  requeueSimulationRun,
   type PersistenceModels,
   type SimulationRunRecord,
 } from "@fork/persistence";
@@ -94,7 +95,21 @@ export class SimulationsService {
     if (existing && existing.status === "COMPLETED") {
       return existing;
     }
-    if (existing && existing.status !== "FAILED") {
+    if (existing && (existing.status === "FAILED" || existing.status === "STALE" || existing.status === "CANCELLED")) {
+      const reset = await requeueSimulationRun(models, existing.id, {
+        includeStrategies: Boolean(input.includeStrategies),
+      });
+      const run = reset ?? existing;
+      await this.ensureQueued(run, {
+        simulationRunId: run.id,
+        wallet,
+        changeId,
+        scenario,
+        includeStrategies: Boolean(input.includeStrategies),
+      });
+      return run;
+    }
+    if (existing) {
       await this.ensureQueued(existing, {
         simulationRunId: existing.id,
         wallet,

@@ -18,6 +18,7 @@ export {
   findRunById,
   findRunByIdempotencyKey,
   insertSimulationRun,
+  requeueSimulationRun,
   saveReceipt,
   SIMULATION_EVENT_TYPES,
   type SimulationEvent,
