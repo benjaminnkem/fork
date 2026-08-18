@@ -27,12 +27,14 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 text-foreground">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ForkMark className="size-4" />
-            </span>
-            <span className="font-heading text-lg tracking-tight">Fork</span>
+          <Link
+            href="/"
+            className="group flex items-center gap-2.5 text-foreground"
+          >
+            <ForkMark className="size-8 shrink-0 shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_35%,transparent)] transition-transform group-hover:scale-[1.04]" />
+            <span className="font-heading text-lg font-semibold tracking-[-0.04em]">Fork</span>
           </Link>
+          <span aria-hidden="true" className="hidden h-5 w-px bg-border sm:block" />
           <nav aria-label="Primary" className="flex items-center gap-1 text-sm">
             {NAV.map((item) => {
               const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);

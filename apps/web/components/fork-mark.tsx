@@ -1,18 +1,42 @@
 export function ForkMark({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M7 3v7.2c0 1.2.9 2.2 2.1 2.3L12 13l2.9-.5c1.2-.2 2.1-1.1 2.1-2.3V3" />
-      <path d="M12 13v8" />
-      <circle cx="12" cy="21" r="1.1" fill="currentColor" stroke="none" />
+    <svg viewBox="0 0 48 48" aria-hidden="true" className={className}>
+      <rect width="48" height="48" rx="12" fill="var(--primary)" />
+      <g
+        fill="none"
+        stroke="var(--primary-foreground)"
+        strokeWidth="3.25"
+        strokeLinecap="round"
+      >
+        <path d="M16 21.4 22.6 29.4" />
+        <path d="M32 21.4 25.4 29.4" />
+      </g>
+      <g fill="var(--primary-foreground)">
+        <rect
+          x="11.3"
+          y="11.3"
+          width="9.4"
+          height="9.4"
+          rx="1.8"
+          transform="rotate(45 16 16)"
+        />
+        <rect
+          x="27.3"
+          y="11.3"
+          width="9.4"
+          height="9.4"
+          rx="1.8"
+          transform="rotate(45 32 16)"
+        />
+        <rect
+          x="19.3"
+          y="28.4"
+          width="9.4"
+          height="9.4"
+          rx="1.8"
+          transform="rotate(45 24 33.1)"
+        />
+      </g>
     </svg>
   );
 }
