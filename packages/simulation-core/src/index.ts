@@ -18,6 +18,7 @@ export {
   canonicalizeReceipt,
   compareEconomicReceipts,
   hashReceipt,
+  impactSimulationJobId,
   receiptHashBody,
   simulationIdempotencyKey,
   SIMULATION_RECEIPT_SCHEMA_VERSION,

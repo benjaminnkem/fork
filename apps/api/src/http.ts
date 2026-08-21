@@ -12,6 +12,7 @@ import {
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 import { map, type Observable } from "rxjs";
+import { isDuplicateKeyError } from "@fork/persistence";
 import { ForkError } from "@fork/shared";
 import type { ZodType } from "zod";
 import { toJsonSafe } from "@fork/blockchain";
@@ -50,6 +51,13 @@ export class ForkExceptionFilter implements ExceptionFilter {
                 ? 503
                 : 422;
       response.status(status).json({ code: exception.code, message: exception.message });
+      return;
+    }
+    if (isDuplicateKeyError(exception)) {
+      response.status(409).json({
+        code: "INTERNAL",
+        message: "A simulation for this wallet and change already exists",
+      });
       return;
     }
     response.status(500).json({

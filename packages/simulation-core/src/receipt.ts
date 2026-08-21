@@ -185,6 +185,10 @@ export function simulationIdempotencyKey(input: {
   ].join(":");
 }
 
+export function impactSimulationJobId(idempotencyKey: string): string {
+  return idempotencyKey.replaceAll(":", "-");
+}
+
 function asString(value: unknown): string | undefined {
   if (typeof value === "bigint") return value.toString();
   if (typeof value === "number" || typeof value === "boolean") return String(value);

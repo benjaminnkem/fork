@@ -10,8 +10,10 @@ export {
   pingMongo,
   type PersistenceModels,
 } from "./connect.js";
+export { isDuplicateJobError, isDuplicateKeyError } from "./mongo-errors.js";
 export {
   appendRunEvent,
+  claimSimulationRun,
   createEvent,
   findOpenRunsByChange,
   findReceiptByHash,

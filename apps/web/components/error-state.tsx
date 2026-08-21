@@ -11,7 +11,7 @@ export function ErrorState({
 }) {
   const record = error && typeof error === "object" ? (error as Record<string, unknown>) : {};
   const code = error instanceof ApiError ? error.code : typeof record.code === "string" ? record.code : "INTERNAL";
-  const message =
+  const rawMessage =
     error instanceof ApiError
       ? error.message
       : error instanceof Error
@@ -19,6 +19,10 @@ export function ErrorState({
         : typeof record.message === "string"
           ? record.message
           : "An unexpected error occurred";
+  const message =
+    /e11000|duplicate key|dup key/i.test(rawMessage)
+      ? "A simulation for this wallet and change already exists"
+      : rawMessage;
   return (
     <Alert variant="destructive">
       <AlertCircle />

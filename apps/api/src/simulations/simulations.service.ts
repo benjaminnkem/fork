@@ -15,11 +15,12 @@ import {
 import type { AppConfig } from "@fork/config";
 import { repoDataPath } from "@fork/config";
 import {
+  claimSimulationRun,
   createEvent,
   findReceiptByHash,
   findRunById,
-  findRunByIdempotencyKey,
-  insertSimulationRun,
+  isDuplicateJobError,
+  isDuplicateKeyError,
   requeueSimulationRun,
   type PersistenceModels,
   type SimulationRunRecord,
@@ -34,7 +35,7 @@ import {
   PINNED_REPLAY_FORK_HASH,
 } from "@fork/protocol-moonwell";
 import { createUserRiskPolicy } from "@fork/risk-engine";
-import { simulationIdempotencyKey } from "@fork/simulation-core";
+import { impactSimulationJobId, simulationIdempotencyKey } from "@fork/simulation-core";
 import {
   BASE_CHAIN_ID,
   IMPACT_QUEUE_MAX_INFLIGHT,
@@ -44,13 +45,6 @@ import {
 } from "@fork/shared";
 import { APP_CONFIG } from "../config.token.js";
 import { IMPACT_QUEUE, PERSISTENCE } from "../persistence.token.js";
-
-function isDuplicateKeyError(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  const record = error as { code?: unknown; message?: unknown };
-  if (record.code === 11000) return true;
-  return typeof record.message === "string" && record.message.includes("E11000");
-}
 
 @Injectable()
 export class SimulationsService {
@@ -104,38 +98,28 @@ export class SimulationsService {
       scenario,
       includeStrategies: Boolean(input.includeStrategies),
     };
-    const existing = await findRunByIdempotencyKey(models, idempotencyKey);
-    if (existing) {
-      return this.resumeExistingRun(models, existing, job);
-    }
-
+    const seed = {
+      wallet,
+      protocolChangeId: changeId,
+      mode: "impact" as const,
+      status: "QUEUED",
+      replayGrade: "DESTINATION_EFFECT_REPLAY" as const,
+      idempotencyKey,
+      engineVersion: this.config.APP_VERSION,
+      policyVersion: policy.policyVersion,
+      forkBlockNumber: PINNED_REPLAY_FORK_BLOCK.toString(),
+      forkBlockHash: PINNED_REPLAY_FORK_HASH,
+      scenario,
+      includeStrategies: job.includeStrategies,
+      events: [createEvent("SIMULATION_QUEUED")],
+    };
     try {
-      const queued = createEvent("SIMULATION_QUEUED");
-      const run = await insertSimulationRun(models, {
-        wallet,
-        protocolChangeId: changeId,
-        mode: "impact",
-        status: "QUEUED",
-        replayGrade: "DESTINATION_EFFECT_REPLAY",
-        idempotencyKey,
-        engineVersion: this.config.APP_VERSION,
-        policyVersion: policy.policyVersion,
-        forkBlockNumber: PINNED_REPLAY_FORK_BLOCK.toString(),
-        forkBlockHash: PINNED_REPLAY_FORK_HASH,
-        scenario,
-        includeStrategies: job.includeStrategies,
-        events: [queued],
-      });
-      await this.ensureQueued(run, {
-        simulationRunId: run.id,
-        ...job,
-      });
-      return run;
+      const run = await claimSimulationRun(models, seed);
+      return await this.resumeExistingRun(models, run, job);
     } catch (error) {
       if (!isDuplicateKeyError(error)) throw error;
-      const raced = await findRunByIdempotencyKey(models, idempotencyKey);
-      if (!raced) throw error;
-      return this.resumeExistingRun(models, raced, job);
+      const retry = await claimSimulationRun(models, seed);
+      return this.resumeExistingRun(models, retry, job);
     }
   }
 
@@ -179,7 +163,7 @@ export class SimulationsService {
         message: "Impact simulation queue is at capacity",
       });
     }
-    const jobId = run.idempotencyKey.replaceAll(":", "-");
+    const jobId = impactSimulationJobId(run.idempotencyKey);
     const existingJob = await queue.getJob(jobId);
     if (existingJob) {
       const state = await existingJob.getState();
@@ -188,13 +172,17 @@ export class SimulationsService {
       }
       await existingJob.remove();
     }
-    await queue.add(IMPACT_SIMULATION_QUEUE, payload, {
-      jobId,
-      attempts: 3,
-      backoff: { type: "exponential", delay: 2000 },
-      removeOnComplete: 1000,
-      removeOnFail: 5000,
-    });
+    try {
+      await queue.add(IMPACT_SIMULATION_QUEUE, payload, {
+        jobId,
+        attempts: 3,
+        backoff: { type: "exponential", delay: 2000 },
+        removeOnComplete: 1000,
+        removeOnFail: 5000,
+      });
+    } catch (error) {
+      if (!isDuplicateJobError(error)) throw error;
+    }
   }
 
   async getRun(id: string): Promise<SimulationRunRecord> {

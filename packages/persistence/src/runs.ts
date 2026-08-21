@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { PersistenceModels } from "./connect.js";
+import { isDuplicateKeyError } from "./mongo-errors.js";
 
 export const SIMULATION_EVENT_TYPES = [
   "SIMULATION_QUEUED",
@@ -66,6 +67,35 @@ export async function insertSimulationRun(
     events: run.events ?? [],
   });
   return toRun(created.toObject());
+}
+
+export async function claimSimulationRun(
+  models: PersistenceModels,
+  run: Omit<SimulationRunRecord, "events" | "id"> & { events?: SimulationEvent[] },
+): Promise<SimulationRunRecord> {
+  const payload = {
+    ...run,
+    events: run.events ?? [createEvent("SIMULATION_QUEUED")],
+  };
+  let lastDuplicate: unknown;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const existing = await findRunByIdempotencyKey(models, payload.idempotencyKey);
+    if (existing) return existing;
+    try {
+      return await insertSimulationRun(models, payload);
+    } catch (error) {
+      lastDuplicate = error;
+      if (!isDuplicateKeyError(error)) throw error;
+      if (attempt > 0) {
+        await new Promise((resolve) => setTimeout(resolve, Math.min(80, 10 * attempt)));
+      }
+    }
+  }
+  const raced = await findRunByIdempotencyKey(models, payload.idempotencyKey);
+  if (raced) return raced;
+  throw lastDuplicate instanceof Error
+    ? lastDuplicate
+    : new Error("Failed to claim simulation run");
 }
 
 export async function findRunById(

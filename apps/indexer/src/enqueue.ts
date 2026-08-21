@@ -2,9 +2,9 @@ import { Queue } from "bullmq";
 import { getAddress } from "viem";
 import type { PersistenceModels } from "@fork/persistence";
 import {
+  claimSimulationRun,
   createEvent,
-  findRunByIdempotencyKey,
-  insertSimulationRun,
+  isDuplicateJobError,
   requeueSimulationRun,
 } from "@fork/persistence";
 import {
@@ -13,14 +13,15 @@ import {
   PINNED_REPLAY_FORK_HASH,
 } from "@fork/protocol-moonwell";
 import { createUserRiskPolicy } from "@fork/risk-engine";
-import { simulationIdempotencyKey } from "@fork/simulation-core";
+import { impactSimulationJobId, simulationIdempotencyKey } from "@fork/simulation-core";
 import {
   IMPACT_QUEUE_MAX_INFLIGHT,
   IMPACT_SIMULATION_QUEUE,
   type Address,
   type ImpactSimulationJob,
 } from "@fork/shared";
-import { impactJobId } from "@fork/governance-core";
+
+const REQUEUE_STATUSES = new Set(["FAILED", "STALE", "CANCELLED"]);
 
 export async function enqueuePinnedImpact(input: {
   models: PersistenceModels;
@@ -40,14 +41,7 @@ export async function enqueuePinnedImpact(input: {
     policyVersion: policy.policyVersion,
     engineVersion: input.engineVersion,
   });
-  const existing = await findRunByIdempotencyKey(input.models, idempotencyKey);
-  if (existing && existing.status !== "FAILED" && existing.status !== "STALE" && existing.status !== "CANCELLED") {
-    return "existing";
-  }
-  const run =
-    existing && (existing.status === "FAILED" || existing.status === "STALE" || existing.status === "CANCELLED")
-      ? ((await requeueSimulationRun(input.models, existing.id, { includeStrategies: true })) ?? existing)
-      : await insertSimulationRun(input.models, {
+  let run = await claimSimulationRun(input.models, {
     wallet,
     protocolChangeId: changeId,
     mode: "impact",
@@ -62,12 +56,17 @@ export async function enqueuePinnedImpact(input: {
     includeStrategies: true,
     events: [createEvent("SIMULATION_QUEUED")],
   });
+  if (REQUEUE_STATUSES.has(run.status)) {
+    run =
+      (await requeueSimulationRun(input.models, run.id, { includeStrategies: true })) ?? run;
+  }
+  if (run.status === "COMPLETED") return "existing";
   const counts = await input.queue.getJobCounts("waiting", "delayed", "active");
   const inflight = (counts.waiting ?? 0) + (counts.delayed ?? 0) + (counts.active ?? 0);
   if (inflight >= IMPACT_QUEUE_MAX_INFLIGHT) {
     return "skipped";
   }
-  const jobId = impactJobId(wallet, changeId);
+  const jobId = impactSimulationJobId(run.idempotencyKey);
   const existingJob = await input.queue.getJob(jobId);
   if (existingJob) {
     const state = await existingJob.getState();
@@ -76,22 +75,27 @@ export async function enqueuePinnedImpact(input: {
     }
     await existingJob.remove();
   }
-  await input.queue.add(
-    IMPACT_SIMULATION_QUEUE,
-    {
-      simulationRunId: run.id,
-      wallet,
-      changeId,
-      scenario: "moonwell-176",
-      includeStrategies: true,
-    },
-    {
-      jobId,
-      attempts: 3,
-      backoff: { type: "exponential", delay: 2000 },
-      removeOnComplete: 1000,
-      removeOnFail: 5000,
-    },
-  );
+  try {
+    await input.queue.add(
+      IMPACT_SIMULATION_QUEUE,
+      {
+        simulationRunId: run.id,
+        wallet,
+        changeId,
+        scenario: "moonwell-176",
+        includeStrategies: true,
+      },
+      {
+        jobId,
+        attempts: 3,
+        backoff: { type: "exponential", delay: 2000 },
+        removeOnComplete: 1000,
+        removeOnFail: 5000,
+      },
+    );
+  } catch (error) {
+    if (isDuplicateJobError(error)) return "existing";
+    throw error;
+  }
   return "created";
 }

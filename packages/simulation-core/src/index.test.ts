@@ -4,6 +4,7 @@ import {
   compareEconomicReceipts,
   hashReceipt,
   SIMULATION_RECEIPT_SCHEMA_VERSION,
+  impactSimulationJobId,
   simulationIdempotencyKey,
   type SimulationReceipt,
 } from "./receipt.js";
@@ -246,5 +247,18 @@ describe("simulation-core receipts", () => {
     ).toBe(
       `0x9eec3976435a37b0340ecbd966c226a691956b35:moonwell:eth:176:${forkHash}:1:dev`,
     );
+  });
+
+  it("builds a colon-free BullMQ job id from the idempotency key", () => {
+    const key = simulationIdempotencyKey({
+      wallet,
+      changeId: "moonwell:eth:176",
+      forkBlockHash: forkHash,
+      policyVersion: "1",
+      engineVersion: "dev",
+    });
+    const jobId = impactSimulationJobId(key);
+    expect(jobId).not.toContain(":");
+    expect(jobId).toContain("moonwell-eth-176");
   });
 });

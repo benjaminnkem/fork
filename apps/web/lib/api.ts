@@ -244,16 +244,55 @@ export function getChange(id: string) {
   return request<JsonIndexedChange>(`/changes/${encodeURIComponent(id)}`);
 }
 
+const impactInflight = new Map<string, Promise<SimulationRun>>();
+
+function impactClientKey(input: {
+  wallet: string;
+  changeId?: string;
+  scenario?: string;
+}): string {
+  return `${input.wallet.toLowerCase()}:${input.changeId ?? "moonwell:eth:176"}:${input.scenario ?? "moonwell-176"}`;
+}
+
+export function isRetryableImpactError(error: unknown): boolean {
+  if (!(error instanceof ApiError)) return false;
+  const haystack = `${error.code} ${error.message}`.toLowerCase();
+  return (
+    error.status === 409 ||
+    haystack.includes("e11000") ||
+    haystack.includes("duplicate key") ||
+    haystack.includes("already exists")
+  );
+}
+
 export function createImpact(input: {
   wallet: string;
   changeId?: string;
   scenario?: string;
   includeStrategies?: boolean;
 }) {
-  return request<SimulationRun>("/simulations/impact", {
-    method: "POST",
-    body: JSON.stringify(input),
+  const key = impactClientKey(input);
+  const pending = impactInflight.get(key);
+  if (pending) return pending;
+  const promise = (async () => {
+    try {
+      return await request<SimulationRun>("/simulations/impact", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+    } catch (error) {
+      if (!isRetryableImpactError(error)) throw error;
+      return await request<SimulationRun>("/simulations/impact", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+    }
+  })();
+  impactInflight.set(key, promise);
+  void promise.finally(() => {
+    if (impactInflight.get(key) === promise) impactInflight.delete(key);
   });
+  return promise;
 }
 
 export function getSimulation(id: string) {
