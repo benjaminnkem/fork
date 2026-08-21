@@ -18,5 +18,10 @@ jobs:
           command_timeout: 30m
           script: |
             set -euo pipefail
+            export PATH="${HOME}/.foundry/bin:/usr/local/bin:/usr/bin:${PATH}"
             cd /opt/fork
+            git fetch origin
+            git checkout -f master
+            git reset --hard origin/master
+            export FORK_DEPLOY_READY=1
             bash scripts/deploy.sh
