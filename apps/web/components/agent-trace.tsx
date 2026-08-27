@@ -14,7 +14,7 @@ export function AgentTrace({ runId }: { runId?: string }) {
     return (
       <EmptyState
         title="No agent run"
-        description="This simulation did not persist a Groq agent session. The EVM proof still stands on its own. Hidden model reasoning is never stored."
+        description="This simulation did not persist a Groq agent session. Turn on Groq and rerun with strategy search enabled to populate this section. The EVM proof still stands on its own. Hidden model reasoning is never stored."
       />
     );
   }
@@ -33,11 +33,23 @@ export function AgentTrace({ runId }: { runId?: string }) {
   }
 
   const events = trace.data?.events ?? [];
+  const runStatus = trace.data?.run?.status;
+  if (runStatus === "RUNNING") {
+    return <CardLoading label="Groq agent is running" />;
+  }
   if (events.length === 0) {
+    if (runStatus === "FAILED") {
+      return (
+        <EmptyState
+          title="Agent run failed"
+          description="The Groq session started but ended before it could persist user-safe trace events. Rerun with a valid Groq key to refresh the trace."
+        />
+      );
+    }
     return (
       <EmptyState
         title="Empty agent trace"
-        description="The agent run exists but has no persisted user-safe events."
+        description="The agent run exists but has no persisted user-safe events yet."
       />
     );
   }
@@ -57,7 +69,10 @@ export function AgentTrace({ runId }: { runId?: string }) {
             const name = asString(event.toolName) ?? asString(event.name);
             const summary = asString(event.summary) ?? asString(event.message);
             return (
-              <li key={asString(event.id) ?? String(index)} className="rounded-lg border border-border p-3">
+              <li
+                key={asString(event.id) ?? String(index)}
+                className="rounded-lg border border-border p-3"
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">{type}</Badge>
                   {name ? <span className="font-mono text-sm">{name}</span> : null}

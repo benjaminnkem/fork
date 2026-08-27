@@ -7,6 +7,7 @@ import { ErrorState } from "@/components/error-state";
 import { SimulationTimeline } from "@/components/simulation-timeline";
 import { StatusBadge } from "@/components/status-badge";
 import { StrategiesPanel } from "@/components/strategies-panel";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,7 +17,9 @@ import { PageHeader } from "@/components/page-header";
 import { PageLoading } from "@/components/loading-state";
 import { asString, shortenHex } from "@/lib/format";
 
-function agentRunIdFrom(run: { events: Array<{ data?: Record<string, unknown> }> }): string | undefined {
+function agentRunIdFrom(run: {
+  events: Array<{ data?: Record<string, unknown> }>;
+}): string | undefined {
   for (const event of run.events) {
     const value = asString(event.data?.agentRunId) ?? asString(event.data?.runId);
     if (value) return value;
@@ -28,6 +31,7 @@ export function SimulationView({ id }: { id: string }) {
   const simulation = useSimulation(id);
   useSimulationStream(id);
   const run = simulation.data;
+  const agentRunId = run ? agentRunIdFrom(run) : undefined;
   const finished = run?.status === "COMPLETED" || run?.status === "FAILED";
   const proofReady = Boolean(run?.receiptHash);
   const proof = useProof(id, proofReady);
@@ -52,27 +56,30 @@ export function SimulationView({ id }: { id: string }) {
         description={<span className="font-mono text-xs">{run.id}</span>}
       />
       <dl className="grid gap-3 rounded-xl border border-border bg-card/60 p-4 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-muted-foreground">Wallet</dt>
-            <dd>
-              <Link className="font-mono underline-offset-4 hover:underline" href={`/wallets/${run.wallet}`}>
-                {run.wallet}
-              </Link>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Replay grade</dt>
-            <dd className="font-mono">{run.replayGrade}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Fork block</dt>
-            <dd className="font-mono">{run.forkBlockNumber}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Fork hash</dt>
-            <dd className="font-mono">{shortenHex(run.forkBlockHash, 10, 8)}</dd>
-          </div>
-        </dl>
+        <div>
+          <dt className="text-muted-foreground">Wallet</dt>
+          <dd>
+            <Link
+              className="font-mono underline-offset-4 hover:underline"
+              href={`/wallets/${run.wallet}`}
+            >
+              {run.wallet}
+            </Link>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Replay grade</dt>
+          <dd className="font-mono">{run.replayGrade}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Fork block</dt>
+          <dd className="font-mono">{run.forkBlockNumber}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Fork hash</dt>
+          <dd className="font-mono">{shortenHex(run.forkBlockHash, 10, 8)}</dd>
+        </div>
+      </dl>
       {run.errorCode ? <ErrorState error={{ message: run.errorCode }} title="Run failed" /> : null}
       {run.status === "CANCELLED" ? (
         <ErrorState error={{ message: "This simulation was cancelled." }} title="Cancelled" />
@@ -100,13 +107,18 @@ export function SimulationView({ id }: { id: string }) {
             Loading strategies
           </div>
         ) : null}
-        {strategies.error ? <ErrorState error={strategies.error} title="Strategies unavailable" /> : null}
+        {strategies.error ? (
+          <ErrorState error={strategies.error} title="Strategies unavailable" />
+        ) : null}
         {strategies.data ? <StrategiesPanel payload={strategies.data.strategies} /> : null}
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-xl">Agent trace</h2>
-        <AgentTrace runId={agentRunIdFrom(run)} />
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xl">Agent trace</h2>
+          {agentRunId ? <Badge variant="outline">Groq agent attached</Badge> : null}
+        </div>
+        <AgentTrace runId={agentRunId} />
       </section>
 
       <div className="flex flex-wrap gap-2">
