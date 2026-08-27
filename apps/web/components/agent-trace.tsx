@@ -34,8 +34,24 @@ export function AgentTrace({ runId }: { runId?: string }) {
 
   const events = trace.data?.events ?? [];
   const runStatus = trace.data?.run?.status;
+  const runStatusLabel = asString(runStatus);
   if (runStatus === "RUNNING") {
-    return <CardLoading label="Groq agent is running" />;
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex flex-wrap items-center gap-2">
+            <CardTitle>Agent evidence</CardTitle>
+            <Badge variant="secondary">Running</Badge>
+          </div>
+          <CardDescription>
+            Groq is calling tools and the trace will fill in as events land.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CardLoading label="Groq agent is running" />
+        </CardContent>
+      </Card>
+    );
   }
   if (events.length === 0) {
     if (runStatus === "FAILED") {
@@ -57,7 +73,11 @@ export function AgentTrace({ runId }: { runId?: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Agent evidence</CardTitle>
+        <div className="flex flex-wrap items-center gap-2">
+          <CardTitle>Agent evidence</CardTitle>
+          <Badge variant="outline">{events.length} events</Badge>
+          {runStatusLabel ? <Badge variant="secondary">{runStatusLabel}</Badge> : null}
+        </div>
         <CardDescription>
           User-safe tool summaries only. Planner hidden reasoning is excluded.
         </CardDescription>

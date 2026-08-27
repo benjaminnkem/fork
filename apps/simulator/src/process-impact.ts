@@ -5,6 +5,7 @@ import {
   createEvent,
   findRunById,
   saveReceipt,
+  type SimulationEventType,
   type PersistenceModels,
 } from "@fork/persistence";
 import { GroqModelProvider, createAgentSession, runAgent } from "@fork/agent-core";
@@ -123,6 +124,32 @@ export async function processImpactSimulation(
       });
       const agentRunId = String(agentRun._id ?? agentRun.id);
       await appendRunEvent(models, run.id, createEvent("AGENT_STARTED", { agentRunId }));
+      let sequence = 0;
+      const persistTrace = async (trace: {
+        type: string;
+        summary: string;
+        toolName?: string;
+        ok?: boolean;
+      }) => {
+        sequence += 1;
+        const payload = {
+          agentRunId,
+          summary: trace.summary,
+          ...(trace.toolName ? { toolName: trace.toolName } : {}),
+          ...(trace.ok !== undefined ? { ok: trace.ok } : {}),
+        };
+        await models.agentTraceEvents.create({
+          runId: agentRunId,
+          sequence,
+          type: trace.type,
+          payload,
+        });
+        await appendRunEvent(
+          models,
+          run.id,
+          createEvent(`AGENT_${trace.type}` as SimulationEventType, payload),
+        );
+      };
       void (async () => {
         try {
           const agentResult = await runAgent({
@@ -139,17 +166,8 @@ export async function processImpactSimulation(
               prompt:
                 "Investigate this wallet against Moonwell proposal 176. Use tools. Do not invent Comptroller numbers. Recommend a rescue only if a tool verified one.",
             },
+            onTrace: persistTrace,
           });
-
-          const traceDocs = agentResult.traces.map((trace, index) => ({
-            runId: agentRunId,
-            sequence: index + 1,
-            type: trace.type,
-            payload: toJsonSafe(trace),
-          }));
-          if (traceDocs.length > 0) {
-            await models.agentTraceEvents.insertMany(traceDocs);
-          }
           await models.agentRuns.findByIdAndUpdate(agentRunId, {
             $set: {
               status: agentResult.status,

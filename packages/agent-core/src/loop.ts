@@ -6,11 +6,7 @@ import { AGENT_SYSTEM_PROMPT } from "./prompt.js";
 import type { ModelProvider, ProviderMessage, ProviderResponse } from "./provider.js";
 import { isTransientProviderError } from "./provider.js";
 import type { AgentSession } from "./session.js";
-import {
-  sanitizeUserText,
-  wrapUntrusted,
-  type AgentTraceEvent,
-} from "./trace.js";
+import { sanitizeUserText, wrapUntrusted, type AgentTraceEvent } from "./trace.js";
 import { TOOL_SPECS } from "./tools.js";
 
 export interface AgentRequest {
@@ -33,6 +29,7 @@ export async function runAgent(input: {
   session: AgentSession;
   config: AppConfig;
   request: AgentRequest;
+  onTrace?: (event: AgentTraceEvent) => Promise<void> | void;
   now?: () => number;
 }): Promise<AgentResult> {
   const traces: AgentTraceEvent[] = [];
@@ -62,15 +59,19 @@ export async function runAgent(input: {
   let usedFallback = false;
   const invalidCounts = new Map<string, number>();
   let invalidTotal = 0;
+  const pushTrace = async (event: AgentTraceEvent) => {
+    traces.push(event);
+    await input.onTrace?.(event);
+  };
 
-  traces.push({
+  await pushTrace({
     type: "OBSERVATION",
     summary: `Investigate ${input.request.wallet} for ${input.request.scenario ?? "moonwell-176"}`,
   });
 
   for (let step = 0; step < input.config.AGENT_MAX_STEPS; step += 1) {
     if ((input.now ?? Date.now)() > deadline) {
-      traces.push({ type: "FAILED", summary: "AGENT_TIMEOUT" });
+      await pushTrace({ type: "FAILED", summary: "AGENT_TIMEOUT" });
       return fail(traces, toolNames, ["AGENT_TIMEOUT"]);
     }
 
@@ -94,7 +95,7 @@ export async function runAgent(input: {
       if (response.switchedToFallback && !usedFallback) {
         usedFallback = true;
         model = fallback;
-        traces.push({
+        await pushTrace({
           type: "MODEL_FALLBACK",
           summary: `Fell back from ${input.config.GROQ_PLANNER_MODEL} to ${fallback}`,
         });
@@ -104,14 +105,17 @@ export async function runAgent(input: {
         error instanceof ForkError && error.code === "GROQ_UNAVAILABLE"
           ? "GROQ_UNAVAILABLE"
           : "BOTH_MODELS_FAILED";
-      traces.push({ type: "FAILED", summary: reason });
+      await pushTrace({ type: "FAILED", summary: reason });
       return fail(traces, toolNames, [reason]);
     }
 
     if (response.toolCalls.length === 0) {
       const summary = sanitizeUserText(response.content ?? "");
-      traces.push({ type: "DECISION_SUMMARY", summary: summary || "Model returned an empty summary" });
-      traces.push({ type: "FINAL_SELECTION", summary: summary || "No strategy selected" });
+      await pushTrace({
+        type: "DECISION_SUMMARY",
+        summary: summary || "Model returned an empty summary",
+      });
+      await pushTrace({ type: "FINAL_SELECTION", summary: summary || "No strategy selected" });
       return {
         status: "COMPLETED",
         userSummary: summary || "The agent finished without a user-safe summary.",
@@ -130,7 +134,7 @@ export async function runAgent(input: {
 
     for (const call of response.toolCalls) {
       toolNames.push(call.function.name);
-      traces.push({
+      await pushTrace({
         type: "TOOL_CALL",
         toolName: call.function.name,
         summary: `Requested ${call.function.name}`,
@@ -152,19 +156,19 @@ export async function runAgent(input: {
           name: authorized.name,
           content: wrapUntrusted(authorized.name, result),
         });
-        traces.push({
+        await pushTrace({
           type: "TOOL_RESULT",
           toolName: authorized.name,
           ok: true,
           summary: summarizeToolResult(authorized.name, result),
         });
-        recordStrategyTrace(traces, authorized.name, result);
+        await recordStrategyTrace(pushTrace, authorized.name, result);
       } catch (error) {
         invalidTotal += 1;
         const fingerprint = callFingerprint(call.function.name, call.function.arguments);
         invalidCounts.set(fingerprint, (invalidCounts.get(fingerprint) ?? 0) + 1);
         const message = error instanceof ForkError ? error.message : String(error);
-        traces.push({
+        await pushTrace({
           type: "TOOL_REJECTED",
           toolName: call.function.name,
           ok: false,
@@ -177,14 +181,14 @@ export async function runAgent(input: {
           content: JSON.stringify({ error: message }),
         });
         if (invalidTotal >= input.config.AGENT_MAX_INVALID_CALLS) {
-          traces.push({ type: "FAILED", summary: "TOO_MANY_INVALID_TOOL_CALLS" });
+          await pushTrace({ type: "FAILED", summary: "TOO_MANY_INVALID_TOOL_CALLS" });
           return fail(traces, toolNames, ["TOO_MANY_INVALID_TOOL_CALLS"]);
         }
       }
     }
   }
 
-  traces.push({ type: "FAILED", summary: "MAX_STEPS_REACHED" });
+  await pushTrace({ type: "FAILED", summary: "MAX_STEPS_REACHED" });
   return fail(traces, toolNames, ["MAX_STEPS_REACHED"]);
 }
 
@@ -232,8 +236,16 @@ function summarizeToolResult(name: string, result: unknown): string {
   return `${name} returned structured data`;
 }
 
-function recordStrategyTrace(traces: AgentTraceEvent[], name: string, result: unknown): void {
-  if (name !== "optimize_repayment" && name !== "optimize_add_collateral" && name !== "compare_verified_strategies") {
+async function recordStrategyTrace(
+  emitTrace: (event: AgentTraceEvent) => Promise<void> | void,
+  name: string,
+  result: unknown,
+): Promise<void> {
+  if (
+    name !== "optimize_repayment" &&
+    name !== "optimize_add_collateral" &&
+    name !== "compare_verified_strategies"
+  ) {
     return;
   }
   const record = result as Record<string, unknown>;
@@ -242,13 +254,13 @@ function recordStrategyTrace(traces: AgentTraceEvent[], name: string, result: un
   );
   for (const item of items) {
     if (item.status === "VERIFIED") {
-      traces.push({
+      await emitTrace({
         type: "STRATEGY_VERIFIED",
         summary: `${String(item.strategyType ?? "strategy")} verified at ${String(item.amountRaw)}`,
       });
     }
     if (item.status === "INFEASIBLE" || item.status === "REJECTED") {
-      traces.push({
+      await emitTrace({
         type: "STRATEGY_REJECTED",
         summary: `${String(item.strategyType ?? "strategy")} ${String(item.status)}`,
       });
