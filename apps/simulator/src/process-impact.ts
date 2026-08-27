@@ -5,12 +5,11 @@ import {
   createEvent,
   findRunById,
   saveReceipt,
+  type SimulationEventType,
   type PersistenceModels,
 } from "@fork/persistence";
-import {
-  comparePinnedStrategies,
-  replayPinnedCollateralFactor,
-} from "@fork/protocol-moonwell";
+import { GroqModelProvider, createAgentSession, runAgent } from "@fork/agent-core";
+import { comparePinnedStrategies, replayPinnedCollateralFactor } from "@fork/protocol-moonwell";
 import { hashReceipt } from "@fork/simulation-core";
 import { getAddress, isAddress } from "viem";
 import { ETHEREUM_CHAIN_ID, ForkError, type ImpactSimulationJob } from "@fork/shared";
@@ -30,7 +29,10 @@ export function parseImpactSimulationJob(value: unknown): ImpactSimulationJob {
     throw new ForkError("INVALID_CONFIG", "Impact job changeId is not a Moonwell change");
   }
   if (record.scenario !== undefined && record.scenario !== "moonwell-176") {
-    throw new ForkError("UNSUPPORTED_PROTOCOL_CHANGE", "Only moonwell-176 impact jobs are supported");
+    throw new ForkError(
+      "UNSUPPORTED_PROTOCOL_CHANGE",
+      "Only moonwell-176 impact jobs are supported",
+    );
   }
   return {
     simulationRunId: record.simulationRunId,
@@ -46,11 +48,17 @@ export async function processImpactSimulation(
   config: AppConfig,
   job: ImpactSimulationJob,
 ): Promise<void> {
+  let proofPublished = false;
   const run = await findRunById(models, job.simulationRunId);
   if (!run) {
     throw new ForkError("SIMULATION_STALE", `Unknown simulation run ${job.simulationRunId}`);
   }
-  if (run.status === "COMPLETED" || run.status === "FAILED" || run.status === "CANCELLED" || run.status === "STALE") {
+  if (
+    run.status === "COMPLETED" ||
+    run.status === "FAILED" ||
+    run.status === "CANCELLED" ||
+    run.status === "STALE"
+  ) {
     return;
   }
   if (run.wallet.toLowerCase() !== job.wallet.toLowerCase()) {
@@ -91,11 +99,7 @@ export async function processImpactSimulation(
       replayGrade: receipt.replayGrade,
       body,
     });
-    await appendRunEvent(
-      models,
-      run.id,
-      createEvent("CHANGE_REPLAY_COMPLETED", { receiptHash }),
-    );
+    await appendRunEvent(models, run.id, createEvent("CHANGE_REPLAY_COMPLETED", { receiptHash }));
     await appendRunEvent(
       models,
       run.id,
@@ -111,6 +115,79 @@ export async function processImpactSimulation(
         replayGrade: receipt.replayGrade,
       },
     );
+    const groqApiKey = config.GROQ_API_KEY;
+    if (job.includeStrategies && groqApiKey) {
+      const agentRun = await models.agentRuns.create({
+        simulationRunId: run.id,
+        status: "RUNNING",
+        plannerModel: config.GROQ_PLANNER_MODEL,
+        fallbackModel: config.GROQ_FALLBACK_MODEL,
+      });
+      const agentRunId = String(agentRun._id ?? agentRun.id);
+      await appendRunEvent(models, run.id, createEvent("AGENT_STARTED", { agentRunId }));
+      let sequence = 0;
+      const persistTrace = async (trace: {
+        type: string;
+        summary: string;
+        toolName?: string;
+        ok?: boolean;
+      }) => {
+        sequence += 1;
+        const payload = {
+          agentRunId,
+          summary: trace.summary,
+          ...(trace.toolName ? { toolName: trace.toolName } : {}),
+          ...(trace.ok !== undefined ? { ok: trace.ok } : {}),
+        };
+        await models.agentTraceEvents.create({
+          runId: agentRunId,
+          sequence,
+          type: trace.type,
+          payload,
+        });
+        await appendRunEvent(
+          models,
+          run.id,
+          createEvent(`AGENT_${trace.type}` as SimulationEventType, payload),
+        );
+      };
+      void (async () => {
+        try {
+          const agentResult = await runAgent({
+            provider: GroqModelProvider.fromApiKey(groqApiKey),
+            session: createAgentSession({
+              config,
+              wallet: job.wallet as `0x${string}`,
+              forceSearchBuffer: job.includeStrategies,
+            }),
+            config,
+            request: {
+              wallet: job.wallet as `0x${string}`,
+              scenario: job.scenario,
+              prompt:
+                "Investigate this wallet against Moonwell proposal 176. Use tools. Do not invent Comptroller numbers. Recommend a rescue only if a tool verified one.",
+            },
+            onTrace: persistTrace,
+          });
+          await models.agentRuns.findByIdAndUpdate(agentRunId, {
+            $set: {
+              status: agentResult.status,
+              plannerModel: agentResult.model ?? config.GROQ_PLANNER_MODEL,
+              fallbackModel: config.GROQ_FALLBACK_MODEL,
+            },
+          });
+        } catch (error) {
+          await models.agentRuns.findByIdAndUpdate(agentRunId, {
+            $set: {
+              status: "FAILED",
+              plannerModel: config.GROQ_PLANNER_MODEL,
+              fallbackModel: config.GROQ_FALLBACK_MODEL,
+            },
+          });
+          void error;
+        }
+      })();
+    }
     if (job.includeStrategies) {
       await appendRunEvent(models, run.id, createEvent("STRATEGY_OPTIMIZATION_STARTED"));
       const comparison = await comparePinnedStrategies({
@@ -132,23 +209,19 @@ export async function processImpactSimulation(
           plan: comparison.addCollateral.plan,
         },
       }) as Record<string, unknown>;
-      await appendRunEvent(
-        models,
-        run.id,
-        createEvent("STRATEGY_BRANCH_RESULT", strategyBody),
-      );
-      await appendRunEvent(
-        models,
-        run.id,
-        createEvent("RECOMMENDATION_READY", strategyBody),
-      );
+      await appendRunEvent(models, run.id, createEvent("STRATEGY_BRANCH_RESULT", strategyBody));
+      await appendRunEvent(models, run.id, createEvent("RECOMMENDATION_READY", strategyBody));
     }
 
     await appendRunEvent(models, run.id, createEvent("PROOF_READY", { receiptHash }), {
       status: "COMPLETED",
       completedAt: new Date(),
     });
+    proofPublished = true;
   } catch (error) {
+    if (proofPublished) {
+      return;
+    }
     const code = error instanceof ForkError ? error.code : "RISK_READ_FAILED";
     await appendRunEvent(models, run.id, createEvent("FAILED", { code }), {
       status: "FAILED",

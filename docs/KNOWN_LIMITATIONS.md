@@ -23,7 +23,7 @@
 - Wallet auth is a signed nonce bound to `WEB_ORIGIN` and Base 8453. Connecting a wallet is still not ownership until the auth message is signed.
 - Mainnet transaction preparation is off unless `ENABLE_MAINNET_TRANSACTION_PREPARATION=true`. The API never broadcasts. The user must sign each allowlisted call in the wallet. Autonomous execution stays disabled.
 - Prepare dry-runs the exact plan on an Anvil fork of the current Base safe head. That needs `anvil` and archive RPC and can take as long as other forks.
-- The impact worker does not start a Groq agent session. The UI shows an explicit empty agent-trace state unless an agent run id is persisted.
+- The impact worker only persists a Groq agent session when `includeStrategies` is enabled and `GROQ_API_KEY` is configured. Otherwise the UI shows the explicit empty agent-trace state.
 - TypeScript remains 5.9.2 even though npm latest is 7.x. wagmi 3.7.6 wants `typescript>=5.9.3`; the lock stays on 5.9.2.
 - Playwright live UI E2E requires `RUN_WEB_E2E=1` plus running API, simulator, Mongo, Redis, and archive RPC. Default Playwright covers the static/error paths only.
 - The indexer writes cursors and change status to `.data/governance-store.json` and metrics to `.data/monitoring-metrics.json`. Auto-enqueue of impact jobs requires Mongo, Redis, and `monitoringEnabled` on the wallet. Only proposal 176 is auto-simulated.

@@ -50,6 +50,11 @@ export class SimulationsController {
     return this.simulations.getRun(id);
   }
 
+  @Post("simulations/:id/rerun")
+  rerunSimulation(@Param("id") id: string) {
+    return this.simulations.rerunImpact(id);
+  }
+
   @Get("simulations/:id/proof")
   getProof(@Param("id") id: string) {
     return this.simulations.getProof(id);
@@ -81,9 +86,7 @@ export class SimulationsController {
     };
 
     const replay = (current: typeof run) => {
-      const start = cursor
-        ? current.events.findIndex((event) => event.id === cursor) + 1
-        : 0;
+      const start = cursor ? current.events.findIndex((event) => event.id === cursor) + 1 : 0;
       for (const event of current.events.slice(Math.max(0, start))) {
         write(event.id, event.type, {
           type: event.type,
@@ -128,11 +131,7 @@ export class SimulationsController {
   }
 
   @Post("historical-replays/:slug/run")
-  async runHistorical(
-    @Param("slug") slug: string,
-    @Body() body: unknown,
-    @Req() request: Request,
-  ) {
+  async runHistorical(@Param("slug") slug: string, @Body() body: unknown, @Req() request: Request) {
     this.limiter.consume(`historical:${clientKey(request)}`);
     if (slug !== "moonwell-176") {
       throw new NotFoundException({

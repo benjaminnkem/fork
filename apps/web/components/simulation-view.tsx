@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { AgentTrace } from "@/components/agent-trace";
 import { BeforeAfter } from "@/components/before-after";
 import { ErrorState } from "@/components/error-state";
 import { SimulationTimeline } from "@/components/simulation-timeline";
 import { StatusBadge } from "@/components/status-badge";
 import { StrategiesPanel } from "@/components/strategies-panel";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -15,8 +18,11 @@ import { useSimulationStream } from "@/hooks/use-simulation-stream";
 import { PageHeader } from "@/components/page-header";
 import { PageLoading } from "@/components/loading-state";
 import { asString, shortenHex } from "@/lib/format";
+import { rerunSimulation } from "@/lib/api";
 
-function agentRunIdFrom(run: { events: Array<{ data?: Record<string, unknown> }> }): string | undefined {
+function agentRunIdFrom(run: {
+  events: Array<{ data?: Record<string, unknown> }>;
+}): string | undefined {
   for (const event of run.events) {
     const value = asString(event.data?.agentRunId) ?? asString(event.data?.runId);
     if (value) return value;
@@ -25,13 +31,22 @@ function agentRunIdFrom(run: { events: Array<{ data?: Record<string, unknown> }>
 }
 
 export function SimulationView({ id }: { id: string }) {
+  const router = useRouter();
   const simulation = useSimulation(id);
   useSimulationStream(id);
   const run = simulation.data;
+  const agentRunId = run ? agentRunIdFrom(run) : undefined;
   const finished = run?.status === "COMPLETED" || run?.status === "FAILED";
   const proofReady = Boolean(run?.receiptHash);
   const proof = useProof(id, proofReady);
   const strategies = useStrategies(id, Boolean(run?.includeStrategies) || finished);
+  const rerunMutation = useMutation({
+    mutationFn: () => rerunSimulation(id),
+    onSuccess: (nextRun) => {
+      router.push(`/simulations/${nextRun.id}`);
+      router.refresh();
+    },
+  });
 
   const running = run?.status === "QUEUED" || run?.status === "RUNNING";
 
@@ -52,27 +67,30 @@ export function SimulationView({ id }: { id: string }) {
         description={<span className="font-mono text-xs">{run.id}</span>}
       />
       <dl className="grid gap-3 rounded-xl border border-border bg-card/60 p-4 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-muted-foreground">Wallet</dt>
-            <dd>
-              <Link className="font-mono underline-offset-4 hover:underline" href={`/wallets/${run.wallet}`}>
-                {run.wallet}
-              </Link>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Replay grade</dt>
-            <dd className="font-mono">{run.replayGrade}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Fork block</dt>
-            <dd className="font-mono">{run.forkBlockNumber}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Fork hash</dt>
-            <dd className="font-mono">{shortenHex(run.forkBlockHash, 10, 8)}</dd>
-          </div>
-        </dl>
+        <div>
+          <dt className="text-muted-foreground">Wallet</dt>
+          <dd>
+            <Link
+              className="font-mono underline-offset-4 hover:underline"
+              href={`/wallets/${run.wallet}`}
+            >
+              {run.wallet}
+            </Link>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Replay grade</dt>
+          <dd className="font-mono">{run.replayGrade}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Fork block</dt>
+          <dd className="font-mono">{run.forkBlockNumber}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Fork hash</dt>
+          <dd className="font-mono">{shortenHex(run.forkBlockHash, 10, 8)}</dd>
+        </div>
+      </dl>
       {run.errorCode ? <ErrorState error={{ message: run.errorCode }} title="Run failed" /> : null}
       {run.status === "CANCELLED" ? (
         <ErrorState error={{ message: "This simulation was cancelled." }} title="Cancelled" />
@@ -100,13 +118,18 @@ export function SimulationView({ id }: { id: string }) {
             Loading strategies
           </div>
         ) : null}
-        {strategies.error ? <ErrorState error={strategies.error} title="Strategies unavailable" /> : null}
+        {strategies.error ? (
+          <ErrorState error={strategies.error} title="Strategies unavailable" />
+        ) : null}
         {strategies.data ? <StrategiesPanel payload={strategies.data.strategies} /> : null}
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-xl">Agent trace</h2>
-        <AgentTrace runId={agentRunIdFrom(run)} />
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xl">Agent trace</h2>
+          {agentRunId ? <Badge variant="outline">Groq agent attached</Badge> : null}
+        </div>
+        <AgentTrace runId={agentRunId} />
       </section>
 
       <div className="flex flex-wrap gap-2">
@@ -115,6 +138,13 @@ export function SimulationView({ id }: { id: string }) {
         </Button>
         <Button asChild variant="outline" disabled={!proofReady}>
           <Link href={`/simulations/${run.id}/execute`}>Review execution</Link>
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => rerunMutation.mutate()}
+          disabled={rerunMutation.isPending}
+        >
+          {rerunMutation.isPending ? "Re-running..." : "Re-run simulation"}
         </Button>
         {proof.error ? <ErrorState error={proof.error} title="Proof not ready" /> : null}
       </div>
