@@ -257,6 +257,7 @@ Last recorded live release gate: [`docs/RELEASE_GATE.md`](docs/RELEASE_GATE.md).
 | [`docs/SECURITY_AND_THREAT_MODEL.md`](docs/SECURITY_AND_THREAT_MODEL.md) | trust boundaries                                     |
 | [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md)                             | every env var                                        |
 | [`docs/RUNBOOK.md`](docs/RUNBOOK.md)                                     | local operations                                     |
+| [`docs/DEPLOYMENT_GCE.md`](docs/DEPLOYMENT_GCE.md)                       | GCE CI/CD, VM bootstrap, and GitHub configuration    |
 | [`docs/PROTOCOL_RESEARCH.md`](docs/PROTOCOL_RESEARCH.md)                 | Moonwell / MIP-X58 primary sources                   |
 | [`docs/CONTRACT_REGISTRY.md`](docs/CONTRACT_REGISTRY.md)                 | addresses, ABI provenance                            |
 | [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md)                 | honesty list                                         |

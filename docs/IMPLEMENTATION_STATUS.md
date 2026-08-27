@@ -5,6 +5,36 @@
 **Handoff:** `docs/HANDOFF.md`  
 **Release gate:** `docs/RELEASE_GATE.md`
 
+## Phase 16 — GCE CI/CD deployment
+
+Implemented the GCE deployment pipeline for the colocated systemd topology.
+The web build now runs on GitHub-hosted Linux and is copied as an artifact so
+the e2-micro does not need to perform the memory-intensive Next.js build.
+
+### Done
+
+- Added `scripts/deploy-gce.sh` for exact-commit, artifact-based deployment.
+- Removed local MongoDB/Redis startup from the deploy path.
+- Deploys and health-checks API, simulator, indexer, and web separately.
+- Replaced the Oracle-VM-specific workflow with native SSH/SCP and host-key
+  verification.
+- Added GitHub production secret/variable documentation and ADR 0006.
+
+### Validation
+
+- `pnpm lint` — passed.
+- `pnpm check-types` — passed.
+- `pnpm test` — passed (30 tasks; real-RPC integration tests passed locally, with
+  environment-gated tests skipped where applicable).
+- `pnpm --filter web build` — passed with the production public API URL.
+- Deployment shell scripts and workflow YAML — syntax checks passed.
+
+### Pending
+
+- Configure the GitHub `production` environment secrets/variable.
+- Run the first hosted workflow against the GCE VM.
+- Run the real replay smoke test on the hosted VM after deployment.
+
 ## Done
 
 - Phase 0 research + skeleton.

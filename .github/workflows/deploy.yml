@@ -1,27 +1,129 @@
-name: deploy
+name: CI/CD
 
 on:
   push:
     branches: [master, main]
+  pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-production
+  cancel-in-progress: false
+
 jobs:
-  vm:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Oracle VM
-        uses: appleboy/ssh-action@v1.2.2
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 30m
-          script: |
-            set -euo pipefail
-            export PATH="${HOME}/.foundry/bin:/usr/local/bin:/usr/bin:${PATH}"
-            cd /opt/fork
-            git fetch origin
-            git checkout -f master
-            git reset --hard origin/master
-            export FORK_DEPLOY_READY=1
-            bash scripts/deploy.sh
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm check-types
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build web on GitHub-hosted Linux
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_BASE_CHAIN_ID: 8453
+        run: |
+          test -n "$NEXT_PUBLIC_API_URL"
+          pnpm --filter web build
+
+      - name: Package web build
+        if: github.event_name != 'pull_request'
+        run: tar -czf "$RUNNER_TEMP/fork-web-next.tgz" -C apps/web .next
+
+      - name: Upload web build artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fork-web-${{ github.sha }}
+          path: ${{ runner.temp }}/fork-web-next.tgz
+          if-no-files-found: error
+
+  deploy:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: check
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check out deployment script
+        uses: actions/checkout@v5
+
+      - name: Download web build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fork-web-${{ github.sha }}
+          path: ${{ runner.temp }}/fork-web-artifact
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          test -n "$DEPLOY_SSH_KEY"
+          test -n "$DEPLOY_KNOWN_HOSTS"
+          install -m 700 -d "$RUNNER_TEMP/fork-ssh"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$RUNNER_TEMP/fork-ssh/id_ed25519"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/fork-ssh/known_hosts"
+          chmod 600 "$RUNNER_TEMP/fork-ssh/id_ed25519" "$RUNNER_TEMP/fork-ssh/known_hosts"
+
+      - name: Copy web build to VM
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          test -n "$DEPLOY_HOST"
+          test -n "$DEPLOY_USER"
+          scp \
+            -i "$RUNNER_TEMP/fork-ssh/id_ed25519" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/fork-ssh/known_hosts" \
+            "$RUNNER_TEMP/fork-web-artifact/fork-web-next.tgz" \
+            "$DEPLOY_USER@$DEPLOY_HOST:/tmp/fork-web-next.tgz"
+
+      - name: Deploy exact commit to VM
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          ssh \
+            -i "$RUNNER_TEMP/fork-ssh/id_ed25519" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/fork-ssh/known_hosts" \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "sudo -n /usr/bin/bash -s -- /tmp/fork-web-next.tgz $GITHUB_SHA" \
+            < scripts/deploy-gce.sh
+
+      - name: Verify public HTTPS deployment
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+        run: |
+          set -euo pipefail
+          public_site_url="${NEXT_PUBLIC_API_URL%/api/v1}"
+          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 3 \
+            "$public_site_url/health/ready"
+          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 3 \
+            "$public_site_url/"

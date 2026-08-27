@@ -196,7 +196,7 @@ Health: `curl localhost:4000/health/live` and `curl localhost:4000/health/ready`
 
 ## 3. Production deployment order
 
-There are no production Docker images in this repo. Compose only runs Mongo 7 and Redis 7. API/indexer/simulator start TypeScript via `tsx` (`build` is `tsc --noEmit`). Web is `next build` / `next start`.
+There are no production Docker images in this repo. Compose is local-only. Production uses hosted MongoDB/Redis; API/indexer/simulator start TypeScript via `tsx` (`build` is `tsc --noEmit`). Web is built on GitHub-hosted Linux and runs with `next start` on the VM. See [`docs/DEPLOYMENT_GCE.md`](DEPLOYMENT_GCE.md).
 
 1. Provision **private** Mongo and Redis. Do not expose them to the public internet.
 2. Provision archive-capable Base RPC and Ethereum RPC. Do not put API keys in the browser bundle.
@@ -211,7 +211,7 @@ There are no production Docker images in this repo. Compose only runs Mongo 7 an
 11. Smoke: `/health/ready`, paste a real Base address, `pnpm replay:verify` on a host that has Anvil + archive RPC.
 12. Only then set `ENABLE_MAINNET_TRANSACTION_PREPARATION=true` if you want user-signed plans. The API still never broadcasts.
 
-Suggested process supervision: systemd, Docker-with-Foundry you build yourself, or a VM. GitHub Actions `ci.yml` runs lint/types/tests/build on `master`/`main`. Workflow `replay` is manual and needs repo secrets `BASE_RPC_URL` and `ETHEREUM_RPC_URL`.
+Suggested process supervision: systemd. GitHub Actions `ci.yml` runs lint/types/tests/build on `master`/`main`; `deploy.yml` builds the web artifact on Linux and deploys the exact commit plus artifact over verified SSH/SCP. Workflow `replay` is manual and needs repo secrets `BASE_RPC_URL` and `ETHEREUM_RPC_URL`.
 
 Do not put Anvil on a public port. Do not log RPC URLs or Groq keys. Groq is optional for read-only analysis.
 
