@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "node init && tsc --noEmit",
     "check-types": "tsc --noEmit",
-    "dev": "tsx watch src/main.ts",
+    "dev": "node init && tsx watch src/main.ts",
     "lint": "eslint . --max-warnings 0",
-    "start": "tsx src/main.ts",
+    "start": "node init && tsx src/main.ts",
     "test": "vitest run"
   },
   "dependencies": {

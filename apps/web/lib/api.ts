@@ -1,7 +1,6 @@
 import { isAddress, getAddress } from "viem";
 
-export const API_V1 =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+export const API_V1 = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 export const API_ORIGIN = API_V1.replace(/\/api\/v1\/?$/, "");
 
 export class ApiError extends Error {
@@ -246,11 +245,7 @@ export function getChange(id: string) {
 
 const impactInflight = new Map<string, Promise<SimulationRun>>();
 
-function impactClientKey(input: {
-  wallet: string;
-  changeId?: string;
-  scenario?: string;
-}): string {
+function impactClientKey(input: { wallet: string; changeId?: string; scenario?: string }): string {
   return `${input.wallet.toLowerCase()}:${input.changeId ?? "moonwell:eth:176"}:${input.scenario ?? "moonwell-176"}`;
 }
 
@@ -297,6 +292,12 @@ export function createImpact(input: {
 
 export function getSimulation(id: string) {
   return request<SimulationRun>(`/simulations/${id}`);
+}
+
+export function rerunSimulation(id: string) {
+  return request<SimulationRun>(`/simulations/${id}/rerun`, {
+    method: "POST",
+  });
 }
 
 export function getProof(id: string) {
