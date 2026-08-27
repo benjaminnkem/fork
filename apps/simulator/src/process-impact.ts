@@ -48,6 +48,7 @@ export async function processImpactSimulation(
   config: AppConfig,
   job: ImpactSimulationJob,
 ): Promise<void> {
+  let proofPublished = false;
   const run = await findRunById(models, job.simulationRunId);
   if (!run) {
     throw new ForkError("SIMULATION_STALE", `Unknown simulation run ${job.simulationRunId}`);
@@ -216,7 +217,11 @@ export async function processImpactSimulation(
       status: "COMPLETED",
       completedAt: new Date(),
     });
+    proofPublished = true;
   } catch (error) {
+    if (proofPublished) {
+      return;
+    }
     const code = error instanceof ForkError ? error.code : "RISK_READ_FAILED";
     await appendRunEvent(models, run.id, createEvent("FAILED", { code }), {
       status: "FAILED",

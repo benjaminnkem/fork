@@ -2,6 +2,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { InlineLoading } from "@/components/loading-state";
 import type { SimulationEvent } from "@/lib/api";
 import { formatTimeAgo, formatTimestamp } from "@/lib/format";
+import { MarkdownSummary } from "./agent-trace";
 
 const LABELS: Record<string, string> = {
   SIMULATION_QUEUED: "Queued",
@@ -55,7 +56,9 @@ export function SimulationTimeline({
             </span>
           </div>
           {typeof event.data?.summary === "string" ? (
-            <p className="text-xs leading-5 text-muted-foreground">{event.data.summary}</p>
+            <>
+              <MarkdownSummary value={event.data.summary} />
+            </>
           ) : null}
         </li>
       ))}

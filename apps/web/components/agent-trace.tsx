@@ -1,3 +1,5 @@
+"use client";
+
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +11,7 @@ import { asString } from "@/lib/format";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-function MarkdownSummary({ value }: { value: string }) {
+export function MarkdownSummary({ value }: { value: string }) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
