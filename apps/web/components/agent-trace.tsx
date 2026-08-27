@@ -6,6 +6,33 @@ import { CardLoading } from "@/components/loading-state";
 import { useAgentTrace } from "@/hooks/use-api";
 import { ApiError } from "@/lib/api";
 import { asString } from "@/lib/format";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+function MarkdownSummary({ value }: { value: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        p: ({ children }) => <p className="leading-6 text-muted-foreground">{children}</p>,
+        ul: ({ children }) => <ul className="mt-2 list-disc space-y-1 pl-5">{children}</ul>,
+        ol: ({ children }) => <ol className="mt-2 list-decimal space-y-1 pl-5">{children}</ol>,
+        li: ({ children }) => <li className="leading-6">{children}</li>,
+        strong: ({ children }) => (
+          <strong className="font-semibold text-foreground">{children}</strong>
+        ),
+        em: ({ children }) => <em className="italic">{children}</em>,
+        code: ({ children }) => (
+          <code className="rounded bg-muted px-1 py-0.5 font-mono text-[0.9em] text-foreground">
+            {children}
+          </code>
+        ),
+      }}
+    >
+      {value}
+    </ReactMarkdown>
+  );
+}
 
 export function AgentTrace({ runId }: { runId?: string }) {
   const trace = useAgentTrace(runId);
@@ -97,7 +124,11 @@ export function AgentTrace({ runId }: { runId?: string }) {
                   <Badge variant="outline">{type}</Badge>
                   {name ? <span className="font-mono text-sm">{name}</span> : null}
                 </div>
-                {summary ? <p className="mt-2 text-sm text-muted-foreground">{summary}</p> : null}
+                {summary ? (
+                  <div className="mt-2 text-sm">
+                    <MarkdownSummary value={summary} />
+                  </div>
+                ) : null}
               </li>
             );
           })}

@@ -54,6 +54,7 @@
 - Phase 15 static re-run: lint 26s, check-types 88s, test 83s, build 123s. All passed. Live gate not re-executed; see `docs/RELEASE_GATE.md`.
 
 ## Not done (by design)
+
 - Email/Telegram notifications are not added.
 - Auto-simulation is limited to the pinned moonwell-176 DESTINATION_EFFECT_REPLAY. Other indexed changes refresh status/exposure only.
 - No mainnet send is performed by the server or by automated tests.
