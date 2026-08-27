@@ -175,14 +175,17 @@ export function simulationIdempotencyKey(input: {
   forkBlockHash: string;
   policyVersion: string;
   engineVersion: string;
+  rerunNonce?: string;
 }): string {
-  return [
+  const parts = [
     normalizeAddress(input.wallet),
     input.changeId,
     normalizeAddress(input.forkBlockHash),
     input.policyVersion,
     input.engineVersion,
-  ].join(":");
+  ];
+  if (input.rerunNonce) parts.push(input.rerunNonce);
+  return parts.join(":");
 }
 
 export function impactSimulationJobId(idempotencyKey: string): string {

@@ -35,6 +35,7 @@
 - NestJS `/api/v1` public reads, queued impact simulations, reconnect-safe SSE, and proof/strategy endpoints.
 - BullMQ `impact-simulation` worker in `apps/simulator`.
 - Next.js product UI: paste any Base address, connect a wallet separately, load real Moonwell positions/risk, list relevant changes with source/destination status, launch simulations, stream SSE progress, show before/after, strategies, agent-empty/trace states, and proof receipts.
+- Simulation detail page now includes a rerun action that starts a fresh impact run and routes to the new result.
 - Playwright covers the home/error paths. Live UI → API → Anvil flow is gated by `RUN_WEB_E2E=1`.
 - Signed-nonce wallet authentication with expiry and replay protection. Read-only analysis stays public.
 - `PUT /wallets/:address/policy` requires a session bound to that wallet.

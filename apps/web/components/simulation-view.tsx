@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { AgentTrace } from "@/components/agent-trace";
 import { BeforeAfter } from "@/components/before-after";
 import { ErrorState } from "@/components/error-state";
@@ -16,6 +18,7 @@ import { useSimulationStream } from "@/hooks/use-simulation-stream";
 import { PageHeader } from "@/components/page-header";
 import { PageLoading } from "@/components/loading-state";
 import { asString, shortenHex } from "@/lib/format";
+import { rerunSimulation } from "@/lib/api";
 
 function agentRunIdFrom(run: {
   events: Array<{ data?: Record<string, unknown> }>;
@@ -28,6 +31,7 @@ function agentRunIdFrom(run: {
 }
 
 export function SimulationView({ id }: { id: string }) {
+  const router = useRouter();
   const simulation = useSimulation(id);
   useSimulationStream(id);
   const run = simulation.data;
@@ -36,6 +40,13 @@ export function SimulationView({ id }: { id: string }) {
   const proofReady = Boolean(run?.receiptHash);
   const proof = useProof(id, proofReady);
   const strategies = useStrategies(id, Boolean(run?.includeStrategies) || finished);
+  const rerunMutation = useMutation({
+    mutationFn: () => rerunSimulation(id),
+    onSuccess: (nextRun) => {
+      router.push(`/simulations/${nextRun.id}`);
+      router.refresh();
+    },
+  });
 
   const running = run?.status === "QUEUED" || run?.status === "RUNNING";
 
@@ -127,6 +138,13 @@ export function SimulationView({ id }: { id: string }) {
         </Button>
         <Button asChild variant="outline" disabled={!proofReady}>
           <Link href={`/simulations/${run.id}/execute`}>Review execution</Link>
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => rerunMutation.mutate()}
+          disabled={rerunMutation.isPending}
+        >
+          {rerunMutation.isPending ? "Re-running..." : "Re-run simulation"}
         </Button>
         {proof.error ? <ErrorState error={proof.error} title="Proof not ready" /> : null}
       </div>
