@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --filter=web --filter=api --filter=indexer --filter=simulator",
+    "dev": "node api.js && turbo run dev --filter=web --filter=api --filter=indexer --filter=simulator",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "check-types": "turbo run check-types",

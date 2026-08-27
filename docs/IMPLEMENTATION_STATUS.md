@@ -65,6 +65,7 @@ the e2-micro does not need to perform the memory-intensive Next.js build.
 - NestJS `/api/v1` public reads, queued impact simulations, reconnect-safe SSE, and proof/strategy endpoints.
 - BullMQ `impact-simulation` worker in `apps/simulator`.
 - Next.js product UI: paste any Base address, connect a wallet separately, load real Moonwell positions/risk, list relevant changes with source/destination status, launch simulations, stream SSE progress, show before/after, strategies, agent-empty/trace states, and proof receipts.
+- Simulation detail page now includes a rerun action that starts a fresh impact run and routes to the new result.
 - Playwright covers the home/error paths. Live UI → API → Anvil flow is gated by `RUN_WEB_E2E=1`.
 - Signed-nonce wallet authentication with expiry and replay protection. Read-only analysis stays public.
 - `PUT /wallets/:address/policy` requires a session bound to that wallet.
@@ -83,6 +84,7 @@ the e2-micro does not need to perform the memory-intensive Next.js build.
 - Phase 15 static re-run: lint 26s, check-types 88s, test 83s, build 123s. All passed. Live gate not re-executed; see `docs/RELEASE_GATE.md`.
 
 ## Not done (by design)
+
 - Email/Telegram notifications are not added.
 - Auto-simulation is limited to the pinned moonwell-176 DESTINATION_EFFECT_REPLAY. Other indexed changes refresh status/exposure only.
 - No mainnet send is performed by the server or by automated tests.

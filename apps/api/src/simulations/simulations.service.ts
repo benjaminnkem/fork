@@ -5,13 +5,10 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
 import { Queue } from "bullmq";
 import { getAddress, isAddress } from "viem";
-import {
-  createForkClients,
-  requireChainClient,
-  toJsonSafe,
-} from "@fork/blockchain";
+import { createForkClients, requireChainClient, toJsonSafe } from "@fork/blockchain";
 import type { AppConfig } from "@fork/config";
 import { repoDataPath } from "@fork/config";
 import {
@@ -79,6 +76,7 @@ export class SimulationsService {
     changeId?: string;
     scenario?: string;
     includeStrategies?: boolean;
+    rerunNonce?: string;
   }): Promise<SimulationRunRecord> {
     const models = this.requireInfra();
     const wallet = this.parseWallet(input.wallet);
@@ -91,6 +89,7 @@ export class SimulationsService {
       forkBlockHash: PINNED_REPLAY_FORK_HASH,
       policyVersion: policy.policyVersion,
       engineVersion: this.config.APP_VERSION,
+      rerunNonce: input.rerunNonce,
     });
     const job = {
       wallet,
@@ -121,6 +120,17 @@ export class SimulationsService {
       const retry = await claimSimulationRun(models, seed);
       return this.resumeExistingRun(models, retry, job);
     }
+  }
+
+  async rerunImpact(id: string): Promise<SimulationRunRecord> {
+    const run = await this.getRun(id);
+    return this.createImpact({
+      wallet: run.wallet,
+      changeId: run.protocolChangeId,
+      scenario: run.scenario,
+      includeStrategies: run.includeStrategies,
+      rerunNonce: randomUUID(),
+    });
   }
 
   private async resumeExistingRun(
@@ -207,8 +217,7 @@ export class SimulationsService {
   async getStrategies(id: string) {
     const run = await this.getRun(id);
     const strategyEvents = run.events.filter(
-      (event) =>
-        event.type === "STRATEGY_BRANCH_RESULT" || event.type === "RECOMMENDATION_READY",
+      (event) => event.type === "STRATEGY_BRANCH_RESULT" || event.type === "RECOMMENDATION_READY",
     );
     return {
       simulationId: run.id,

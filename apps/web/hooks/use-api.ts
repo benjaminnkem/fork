@@ -120,5 +120,9 @@ export function useAgentTrace(id: string | undefined) {
     queryFn: () => getAgentTrace(id!),
     enabled: Boolean(id),
     retry: false,
+    refetchInterval: (query) => {
+      const status = query.state.data?.run?.status;
+      return status === "RUNNING" ? 1000 : false;
+    },
   });
 }
